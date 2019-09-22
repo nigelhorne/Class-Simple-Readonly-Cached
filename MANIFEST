@@ -1,0 +1,6 @@
+lib/Class/Simple/Readonly/Cached.pm
+LICENSE
+Makefile.PL
+MANIFEST			This list of files
+README.md
+t/class.t
