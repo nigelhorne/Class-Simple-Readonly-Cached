@@ -40,8 +40,9 @@ Note that it only works on objects which doesn't change its state based on input
 Creates a Class::Simple::Readonly::Cached object.
 
 It takes one mandatory parameter: cache,
-which is an object which understands get() and set() calls,
-such as an L<CHI> object.
+which is either an object which understands get() and set() calls,
+such as an L<CHI> object,
+or it is a reference to a hash where the return values are to be stored.
 
 It takes one optional argument: object,
 which is an object which is taken to be the object to be cached.
@@ -95,6 +96,12 @@ sub AUTOLOAD {
 	my $cache = $self->{'cache'};
 
 	if($param eq 'DESTROY') {
+		if(ref($cache) eq 'HASH') {
+			foreach my $key(keys %{$cache}) {
+				delete $cache->{$key};
+			}
+			return;
+		}
 		if(defined($^V) && ($^V ge 'v5.14.0')) {
 			return if ${^GLOBAL_PHASE} eq 'DESTRUCT';	# >= 5.14.0 only
 		}
@@ -114,11 +121,17 @@ sub AUTOLOAD {
 	my $key = $param . '::' . join('::', @_);
 
 	# Retrieving a value
-	if(my $rc = $cache->get($key)) {
+	my $rc;
+	if(ref($cache) eq 'HASH') {
+		$rc = $cache->{$key};
+	} else {
+		$rc = $cache->get($key);
+	}
+	if($rc) {
 		if(ref($rc) eq 'ARRAY') {
 			return @{$rc};
 		}
-		if($rc eq __PACKAGE__ . ">UNDEF<") {
+		if($rc eq __PACKAGE__ . '>UNDEF<') {
 			return;
 		}
 		return $rc;
@@ -128,13 +141,24 @@ sub AUTOLOAD {
 		if(scalar(@rc) == 0) {
 			return;
 		}
-		$cache->set($key, \@rc, 'never');
+		if(ref($cache) eq 'HASH') {
+			$cache->{$key} = \@rc;
+		} else {
+			$cache->set($key, \@rc, 'never');
+		}
 		return @rc;
 	}
-	my $rc = $object->$func(@_);
+	$rc = $object->$func(@_);
 	if(!defined($rc)) {
-		$cache->set($key, __PACKAGE__ . ">UNDEF<", 'never');
+		if(ref($cache) eq 'HASH') {
+			$cache->{$key} = __PACKAGE__ . '>UNDEF<';
+		} else {
+			$cache->set($key, __PACKAGE__ . '>UNDEF<', 'never');
+		}
 		return;
+	}
+	if(ref($cache) eq 'HASH') {
+		return $cache->{$key} = $rc;
 	}
 	return $cache->set($key, $rc, 'never');
 }

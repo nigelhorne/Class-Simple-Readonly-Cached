@@ -10,10 +10,8 @@ BEGIN {
 	use_ok('Class::Simple::Readonly::Cached');
 }
 
-CLASS: {
-	my $cache = CHI->new(driver => 'RawMemory', global => 1);
-	$cache->on_set_error('die');
-	$cache->on_get_error('die');
+HASH: {
+	my $cache = {};
 	my $l = new_ok('Class::Simple::Readonly::Cached' => [ cache => $cache, object => x->new() ]);
 
 	ok($l->calls() == 0);
@@ -53,16 +51,16 @@ CLASS: {
 	ok(!defined($l->empty()));
 
 	# White box test the cache
-	ok($cache->get('barney::') eq 'betty');
-	ok($cache->get('barney::betty') eq 'betty');
-	ok($cache->get('echo::foo') eq 'foo');
-	ok($cache->get('echo::bar') eq 'bar');
-	my $a = $cache->get('a::');
+	ok($cache->{'barney::'} eq 'betty');
+	ok($cache->{'barney::betty'} eq 'betty');
+	ok($cache->{'echo::foo'} eq 'foo');
+	ok($cache->{'echo::bar'} eq 'bar');
+	my $a = $cache->{'a::'};
 	ok(ref($a) eq 'ARRAY');
-	my $abc = $cache->get('abc::');
+	my $abc = $cache->{'abc::'};
 	ok(ref($abc) eq 'ARRAY');
 
-	# foreach my $key($cache->get_keys()) {
+	# foreach my $key(sort keys %{$cache}) {
 		# diag($key);
 	# }
 }

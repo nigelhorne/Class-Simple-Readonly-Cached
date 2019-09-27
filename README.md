@@ -26,8 +26,9 @@ Note that it only works on objects which doesn't change its state based on input
 Creates a Class::Simple::Readonly::Cached object.
 
 It takes one mandatory parameter: cache,
-which is an object which understands get() and set() calls,
-such as an [CHI](https://metacpan.org/pod/CHI) object.
+which is either an object which understands get() and set() calls,
+such as an [CHI](https://metacpan.org/pod/CHI) object,
+or it is a reference to a hash where the return values are to be stored.
 
 It takes one optional argument: object,
 which is an object which is taken to be the object to be cached.
