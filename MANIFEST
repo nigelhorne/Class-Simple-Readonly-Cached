@@ -6,7 +6,6 @@ MANIFEST			This list of files
 README.md
 t/carp.t
 t/chi.t
-t/class.t
 t/hash.t
 t/no404s.t
 t/noopentickets.t
