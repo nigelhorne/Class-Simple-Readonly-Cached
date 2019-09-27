@@ -13,11 +13,11 @@ Class::Simple::Readonly::Cached - cache messages to an object
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 SYNOPSIS
 
@@ -41,8 +41,8 @@ Creates a Class::Simple::Readonly::Cached object.
 
 It takes one mandatory parameter: cache,
 which is either an object which understands get() and set() calls,
-such as an L<CHI> object,
-or it is a reference to a hash where the return values are to be stored.
+such as an L<CHI> object;
+or is a reference to a hash where the return values are to be stored.
 
 It takes one optional argument: object,
 which is an object which is taken to be the object to be cached.

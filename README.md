@@ -4,7 +4,7 @@ Class::Simple::Readonly::Cached - cache messages to an object
 
 # VERSION
 
-Version 0.01
+Version 0.02
 
 # SYNOPSIS
 
@@ -27,8 +27,8 @@ Creates a Class::Simple::Readonly::Cached object.
 
 It takes one mandatory parameter: cache,
 which is either an object which understands get() and set() calls,
-such as an [CHI](https://metacpan.org/pod/CHI) object,
-or it is a reference to a hash where the return values are to be stored.
+such as an [CHI](https://metacpan.org/pod/CHI) object;
+or is a reference to a hash where the return values are to be stored.
 
 It takes one optional argument: object,
 which is an object which is taken to be the object to be cached.
