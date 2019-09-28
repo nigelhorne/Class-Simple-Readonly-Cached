@@ -77,6 +77,19 @@ sub new {
 	Carp::carp('Usage: ', __PACKAGE__, '->new(cache => $cache [, object => $object ], %args)');
 }
 
+=head2 object
+
+Return the encapsulated objet
+
+=cut
+
+sub object
+{
+	my $self = shift;
+
+	return $self->{'object'};
+}
+
 sub _caller_class
 {
 	my $self = shift;
