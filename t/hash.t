@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::Most tests => 36;
+use Test::Most tests => 37;
 use Test::NoWarnings;
 use CHI;
 
@@ -59,6 +59,8 @@ HASH: {
 	ok(ref($a) eq 'ARRAY');
 	my $abc = $cache->{'abc::'};
 	ok(ref($abc) eq 'ARRAY');
+
+	ok(ref($l->object()) eq 'x');
 
 	# foreach my $key(sort keys %{$cache}) {
 		# diag($key);
