@@ -69,6 +69,7 @@ sub new {
 
 	if(!$args{'cache'}) {
 		Carp::carp('Usage: ', __PACKAGE__, '->new(cache => $cache [, object => $object ], %args)');
+		return;
 	}
 
 	if(!defined($args{'object'})) {

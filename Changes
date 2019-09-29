@@ -1,5 +1,8 @@
 Revision history for Class::Simple::Readonly::Cached
 
+0.04
+	Object shouldn't be instantiated if cache argument is not given
+
 0.03	Sun Sep 29 05:12:19 PDT 2019
 	Added the object() method
 
