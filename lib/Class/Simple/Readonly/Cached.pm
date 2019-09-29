@@ -13,11 +13,11 @@ Class::Simple::Readonly::Cached - cache messages to an object
 
 =head1 VERSION
 
-Version 0.02
+Version 0.03
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 SYNOPSIS
 
@@ -67,14 +67,15 @@ sub new {
 		%args = @_;
 	}
 
+	if(!$args{'cache'}) {
+		Carp::carp('Usage: ', __PACKAGE__, '->new(cache => $cache [, object => $object ], %args)');
+	}
+
 	if(!defined($args{'object'})) {
 		$args{'object'} = Class::Simple->new(%args);
 	}
 
-	if($args{'cache'}) {
-		return bless \%args, $class;
-	}
-	Carp::carp('Usage: ', __PACKAGE__, '->new(cache => $cache [, object => $object ], %args)');
+	return bless \%args, $class;
 }
 
 =head2 object
@@ -109,16 +110,18 @@ sub AUTOLOAD {
 	my $cache = $self->{'cache'};
 
 	if($param eq 'DESTROY') {
-		if(ref($cache) eq 'HASH') {
-			foreach my $key(keys %{$cache}) {
-				delete $cache->{$key};
+		if($cache) {
+			if(ref($cache) eq 'HASH') {
+				foreach my $key(keys %{$cache}) {
+					delete $cache->{$key};
+				}
+				return;
 			}
-			return;
+			if(defined($^V) && ($^V ge 'v5.14.0')) {
+				return if ${^GLOBAL_PHASE} eq 'DESTRUCT';	# >= 5.14.0 only
+			}
+			$cache->clear();
 		}
-		if(defined($^V) && ($^V ge 'v5.14.0')) {
-			return if ${^GLOBAL_PHASE} eq 'DESTRUCT';	# >= 5.14.0 only
-		}
-		$cache->clear();
 		return;
 	}
 

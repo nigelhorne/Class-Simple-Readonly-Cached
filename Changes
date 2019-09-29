@@ -1,7 +1,7 @@
 Revision history for Class::Simple::Readonly::Cached
 
-0.03
-	Added the objet() method
+0.03	Sun Sep 29 05:12:19 PDT 2019
+	Added the object() method
 
 0.02	Fri Sep 27 03:43:56 PDT 2019
 	Added hash mode

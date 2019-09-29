@@ -4,7 +4,7 @@ Class::Simple::Readonly::Cached - cache messages to an object
 
 # VERSION
 
-Version 0.02
+Version 0.03
 
 # SYNOPSIS
 
@@ -34,6 +34,10 @@ It takes one optional argument: object,
 which is an object which is taken to be the object to be cached.
 If not given, an object of the class [Class::Simple](https://metacpan.org/pod/Class::Simple) is instantiated
 and that is used.
+
+## object
+
+Return the encapsulated objet
 
 # AUTHOR
 
