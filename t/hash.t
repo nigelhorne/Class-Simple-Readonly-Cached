@@ -82,7 +82,6 @@ HASH: {
 	my $misses = $cached->state()->{'misses'};
 	my $fail;
 	while(my($k, $v) = each %{$misses}) {
-		diag($k);
 		if($v != 1) {
 			$fail = $k;
 			last;
