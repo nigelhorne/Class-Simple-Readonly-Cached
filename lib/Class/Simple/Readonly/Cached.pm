@@ -13,11 +13,11 @@ Class::Simple::Readonly::Cached - cache messages to an object
 
 =head1 VERSION
 
-Version 0.04
+Version 0.05
 
 =cut
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 =head1 SYNOPSIS
 
@@ -102,11 +102,11 @@ sub _caller_class
 	}
 }
 
-=head2 as_string
+=head2 state
 
 Returns the state of the object
 
-	print Data::Dumper->new([$obj->state()]->Dump();
+    print Data::Dumper->new([$obj->state()]->Dump();
 
 =cut
 
