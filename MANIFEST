@@ -16,4 +16,5 @@ t/port.t
 t/spelling.t
 t/unused.t
 t/used.t
+t/utf8.t
 t/vars.t

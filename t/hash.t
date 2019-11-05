@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use Test::Most tests => 38;
 use Test::NoWarnings;
-use CHI;
 
 BEGIN {
 	use_ok('Class::Simple::Readonly::Cached');
