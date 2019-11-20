@@ -181,7 +181,7 @@ sub AUTOLOAD {
 	}
 	if(wantarray) {
 		my @rc = $object->$func(@_);
-		$self->{_hits}{$key}++;
+		$self->{_misses}{$key}++;
 		if(scalar(@rc) == 0) {
 			return;
 		}
