@@ -142,7 +142,6 @@ sub AUTOLOAD {
 
 	# my $func = $self->{'object'} . "::$param";
 	my $func = $param;
-	my $object = $self->{'object'};
 
 	# if($param =~ /^[gs]et_/) {
 		# # $param = "SUPER::$param";
@@ -180,6 +179,7 @@ sub AUTOLOAD {
 		}
 	}
 	$self->{_misses}{$key}++;
+	my $object = $self->{'object'};
 	if(wantarray) {
 		my @rc = $object->$func(@_);
 		if(scalar(@rc) == 0) {
