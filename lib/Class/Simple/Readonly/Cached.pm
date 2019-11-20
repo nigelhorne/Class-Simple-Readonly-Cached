@@ -179,9 +179,9 @@ sub AUTOLOAD {
 			return $rc;
 		}
 	}
+	$self->{_misses}{$key}++;
 	if(wantarray) {
 		my @rc = $object->$func(@_);
-		$self->{_misses}{$key}++;
 		if(scalar(@rc) == 0) {
 			return;
 		}
@@ -192,7 +192,6 @@ sub AUTOLOAD {
 		}
 		return @rc;
 	}
-	$self->{_misses}{$key}++;
 	$rc = $object->$func(@_);
 	if(!defined($rc)) {
 		if(ref($cache) eq 'HASH') {
