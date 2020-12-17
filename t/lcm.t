@@ -4,15 +4,15 @@ use strict;
 use warnings;
 use CHI;
 use Test::Most;
-use Test::NoWarnings;
 
 LCM: {
-	eval { use Locale::Country::Multilingual; };
+	eval 'use Locale::Country::Multilingual';
 	if($@) {
 		plan(skip_all => 'Locale::Country::Multilingual required for this test');
 	} else {
-		plan(tests => 12);
+		plan(tests => 13);
 
+		use_ok('Test::NoWarnings');
 		use_ok('Class::Simple::Readonly::Cached');
 		my $cache = CHI->new(driver => 'RawMemory', datastore => {});
 		$cache->on_set_error('die');
