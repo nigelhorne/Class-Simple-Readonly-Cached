@@ -1,3 +1,6 @@
+[![Kwalitee](https://cpants.cpanauthors.org/dist/Class-Simple-Readonly-Cached.png)](http://cpants.cpanauthors.org/dist/Class-Simple-Readonly-Cached)
+[![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Cache+messages+to+an+object+#perl&url=https://github.com/nigelhorne/class-simple-readonly-cached&via=nigelhorne)
+
 # NAME
 
 Class::Simple::Readonly::Cached - cache messages to an object

@@ -68,13 +68,14 @@ CHI: {
 	while(my($k, $v) = each %{$hits}) {
 		$count += $v;
 	}
-	ok($count == 7);
+	is($count, 7, 'cache contains 7 hits');
+
 	my $misses = $l->state()->{'misses'};
 	$count = 0;
 	while(my($k, $v) = each %{$misses}) {
 		$count += $v;
 	}
-	ok($count == 8);
+	is($count, 8, 'cache contains 8 misses');
 }
 
 package x;

@@ -33,7 +33,6 @@ that works on objects which doesn't change its state based on input:
     $val = $obj->val();
     $val = $obj->val(a => 'b');
 
-
 =head1 SUBROUTINES/METHODS
 
 =head2 new
