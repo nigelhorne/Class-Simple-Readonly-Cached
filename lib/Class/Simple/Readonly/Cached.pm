@@ -172,8 +172,10 @@ sub AUTOLOAD {
 			$self->{_hits}{$key}++;
 			my @foo = @{$rc};
 			if(wantarray) {
-				die $key if($foo[0] eq __PACKAGE__ . ">UNDEF<");
-				die $key if($foo[0] eq 'never');
+				if(defined($foo[0])) {
+					die $key if($foo[0] eq __PACKAGE__ . ">UNDEF<");
+					die $key if($foo[0] eq 'never');
+				}
 				return @{$rc};
 			}
 			return pop @foo;
