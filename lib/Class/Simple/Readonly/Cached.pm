@@ -157,7 +157,7 @@ sub AUTOLOAD {
 		# return $object->$func(\@_);
 	# }
 
-	my $key = $param . '::' . join('::', @_);
+	my $key = $param . '::' . join('::', grep defined, @_);
 
 	# Retrieving a value
 	my $rc;
