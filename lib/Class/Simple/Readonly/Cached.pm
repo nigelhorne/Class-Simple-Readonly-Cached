@@ -157,7 +157,10 @@ sub AUTOLOAD {
 		# return $object->$func(\@_);
 	# }
 
-	my $key = $param . '::' . join('::', @_);
+	my $key = $param . '::';
+	if(scalar(@_)) {
+		$key .= join('::', @_);
+	}
 
 	# Retrieving a value
 	my $rc;
