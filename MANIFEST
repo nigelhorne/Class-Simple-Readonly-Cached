@@ -7,6 +7,8 @@ MANIFEST.SKIP
 README.md
 t/carp.t
 t/chi.t
+t/eof.t
+t/eol.t
 t/hash.t
 t/lcm.t
 t/links.t

@@ -226,16 +226,9 @@ Nigel Horne, C<< <njh at bandsman.co.uk> >>
 
 Doesn't work with L<Memoize>.
 
-Please report any bugs or feature requests to C<bug-class-simple-readonly-cached at rt.cpan.org>,
-or through the web interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Class-Simple-Readonly-Cached>.
+Please report any bugs or feature requests to L<https://github.com/nigelhorne/Class-Simple-Readonly-Cached/issues>.
 I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
-
-params() returns a ref which means that calling routines can change the hash
-for other routines.
-Take a local copy before making amendments to the table if you don't want unexpected
-things to happen.
 
 =head1 SEE ALSO
 
@@ -255,9 +248,9 @@ You can also look for information at:
 
 L<https://metacpan.org/release/Class-Simple-Readonly-Cached>
 
-=item * RT: CPAN's request tracker
+=item * Source Repository
 
-L<https://rt.cpan.org/NoAuth/Bugs.html?Dist=Class-Simple-Readonly-Cached>
+L<https://github.com/nigelhorne/Class-Simple-Readonly-Cached>
 
 =item * CPANTS
 
