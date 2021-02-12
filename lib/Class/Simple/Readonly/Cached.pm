@@ -40,7 +40,7 @@ that works on objects which doesn't change its state based on input:
 Creates a Class::Simple::Readonly::Cached object.
 
 It takes one mandatory parameter: cache,
-which is either an object which understands get() and set() calls,
+which is either an object which understands clear(), get() and set() calls,
 such as an L<CHI> object;
 or is a reference to a hash where the return values are to be stored.
 
@@ -64,7 +64,11 @@ sub new {
 	my $proto = shift;
 	my $class = ref($proto) || $proto;
 
-	return unless(defined($class));
+	# Use Class::Simple::Readonly::Cached->new(), not Class::Simple::Readonly::Cached::new()
+	if(!defined($class)) {
+		carp(__PACKAGE__, ' use ->new() not ::new() to instantiate');
+		return;
+	}
 
 	my %args;
 	if(ref($_[0]) eq 'HASH') {
@@ -159,7 +163,6 @@ sub AUTOLOAD {
 
 	my $key = $param . '::' . join('::', grep defined, @_);
 
-	# Retrieving a value
 	my $rc;
 	if(ref($cache) eq 'HASH') {
 		$rc = $cache->{$key};
@@ -167,13 +170,14 @@ sub AUTOLOAD {
 		$rc = $cache->get($key);
 	}
 	if(defined($rc)) {
+		# Retrieving a value
 		die $key if($rc eq 'never');
 		if(ref($rc) eq 'ARRAY') {
 			$self->{_hits}{$key}++;
 			my @foo = @{$rc};
 			if(wantarray) {
 				if(defined($foo[0])) {
-					die $key if($foo[0] eq __PACKAGE__ . ">UNDEF<");
+					die $key if($foo[0] eq __PACKAGE__ . '>UNDEF<');
 					die $key if($foo[0] eq 'never');
 				}
 				return @{$rc};
@@ -188,6 +192,7 @@ sub AUTOLOAD {
 			$self->{_hits}{$key}++;
 			return $rc;
 		}
+		# Want array from cached array after previously requesting it as a scalar
 	}
 	$self->{_misses}{$key}++;
 	my $object = $self->{'object'};
