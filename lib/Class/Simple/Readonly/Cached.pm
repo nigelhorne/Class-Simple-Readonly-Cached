@@ -86,7 +86,11 @@ sub new {
 	}
 
 	if(defined($args{'object'})) {
-		if(!ref($args{'object'})) {
+		if(ref($args{'object'})) {
+			if(ref($args{'object'}) eq __PACKAGE__) {
+				Carp::carp(__PACKAGE__, 'warning: $object is already cached');
+			}
+		} else {
 			Carp::carp(__PACKAGE__, ' $object is a scalar');
 			return;
 		}
