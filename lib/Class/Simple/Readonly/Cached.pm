@@ -140,6 +140,7 @@ sub state {
 	return { hits => $self->{_hits}, misses => $self->{_misses} };
 }
 
+# Returns a cached object, if you want it to be uncached, you'll need to clone it
 sub AUTOLOAD {
 	our $AUTOLOAD;
 	my $param = $AUTOLOAD;
@@ -227,6 +228,9 @@ sub AUTOLOAD {
 			$cache->set($key, __PACKAGE__ . '>UNDEF<', 'never');
 		}
 		return;
+	}
+	if(ref($rc) =~ /::/) {
+		$rc = Class::Simple::Readonly::Cached->new(object => $rc, cache => $cache);
 	}
 	if(ref($cache) eq 'HASH') {
 		return $cache->{$key} = $rc;
