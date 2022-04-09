@@ -88,7 +88,7 @@ sub new {
 	if(defined($args{'object'})) {
 		if(ref($args{'object'})) {
 			if(ref($args{'object'}) eq __PACKAGE__) {
-				Carp::carp(__PACKAGE__, 'warning: $object is already cached');
+				Carp::carp(__PACKAGE__, ' warning: $object is already cached');
 				# Note that this isn't a technique for clearing the cache
 				return $args{'object'};
 			}
