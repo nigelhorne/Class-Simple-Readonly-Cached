@@ -20,6 +20,10 @@ CARP: {
 			Class::Simple::Readonly::Cached->new({ foo => 'bar' })
 		}, qr/^Usage:\s/);
 
+		does_carp_that_matches(sub {
+			Class::Simple::Readonly::Cached->new({ object => 'tulip', cache => {} });
+		}, qr/is a scalar/);
+
 		done_testing();
 	}
 }

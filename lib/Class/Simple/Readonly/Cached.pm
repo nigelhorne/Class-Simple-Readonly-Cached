@@ -66,7 +66,7 @@ sub new {
 
 	# Use Class::Simple::Readonly::Cached->new(), not Class::Simple::Readonly::Cached::new()
 	if(!defined($class)) {
-		carp(__PACKAGE__, ' use ->new() not ::new() to instantiate');
+		Carp::carp(__PACKAGE__, ' use ->new() not ::new() to instantiate');
 		return;
 	}
 
@@ -85,7 +85,12 @@ sub new {
 		return;
 	}
 
-	if(!defined($args{'object'})) {
+	if(defined($args{'object'})) {
+		if(!ref($args{'object'})) {
+			Carp::carp(__PACKAGE__, ' $object is a scalar');
+			return;
+		}
+	} else {
 		$args{'object'} = Class::Simple->new(%args);
 	}
 
@@ -282,7 +287,7 @@ L<http://search.cpan.org/dist/Class-Simple-Readonly-Cached/>
 =head1 LICENSE AND COPYRIGHT
 
 Author Nigel Horne: C<njh@bandsman.co.uk>
-Copyright (C) 2019-2021 Nigel Horne
+Copyright (C) 2019-2022 Nigel Horne
 
 Usage is subject to licence terms.
 The licence terms of this software are as follows:
