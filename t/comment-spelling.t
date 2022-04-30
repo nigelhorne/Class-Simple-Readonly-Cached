@@ -19,5 +19,9 @@ if($ENV{AUTHOR_TESTING} ) {
 }
 
 __DATA__
+gedcom
 param
 Readonly
+rc
+TODO
+uncached
