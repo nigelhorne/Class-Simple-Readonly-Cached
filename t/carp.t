@@ -37,7 +37,7 @@ CARP: {
 		my $object2;
 		does_carp_that_matches(sub {
 			$object2 = new_ok('Class::Simple::Readonly::Cached' => [ cache => {}, object => $l ]);
-		}, qr/is already cached/);
+		}, qr/is already cached at /);
 
 		cmp_ok($object, 'eq', $object2, 'attempt to cache a previously cached object returns the same cache');
 
