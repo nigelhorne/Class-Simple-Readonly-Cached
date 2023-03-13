@@ -28,7 +28,7 @@ CARP: {
 		my $object = new_ok('Class::Simple::Readonly::Cached' => [ cache => {} ]);
 
 		does_carp_that_matches(sub {
-			Class::Simple::Readonly::Cached->new(object => $object, cache => {});
+			Class::Simple::Readonly::Cached->new({ object => $object, cache => {} });
 		}, qr/is a cached object/);
 
 
