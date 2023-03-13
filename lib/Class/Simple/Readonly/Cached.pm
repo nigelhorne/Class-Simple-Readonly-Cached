@@ -60,6 +60,11 @@ and that is used.
     my $father1 = $object->father();	# Will call gedcom->father() to get the person's father
     my $father2 = $object->father();	# Will retrieve the father from the cache without calling person->father()
 
+Takes one optional argument: quiet,
+if you attempt to cache an object that is already cached, rather than create
+another copy you receive a warning and the previous cached copy is returned.
+The 'quiet' option, when non-zero, silences the warning.
+
 =cut
 
 sub new {
@@ -107,7 +112,9 @@ sub new {
 	# a separate cache
 	my $rc;
 	if($rc = $cached{$args{'object'}}) {
-		Carp::carp(__PACKAGE__, ' $object is already cached at ', $rc->{'line'}, ' of ', $rc->{'file'});
+		unless($args{'quiet'}) {
+			Carp::carp(__PACKAGE__, ' $object is already cached at ', $rc->{'line'}, ' of ', $rc->{'file'});
+		}
 		$rc = $rc->{'object'};
 	} else {
 		$rc = bless \%args, $class;

@@ -41,6 +41,11 @@ CARP: {
 
 		cmp_ok($object, 'eq', $object2, 'attempt to cache a previously cached object returns the same cache');
 
+		# TODO "does_not_carp" when that is added to Test::Carp
+		$object2 = new_ok('Class::Simple::Readonly::Cached' => [ cache => {}, object => $l, quiet => 1 ]);
+
+		cmp_ok($object, 'eq', $object2, 'attempt to cache a previously cached object returns the same cache');
+
 		done_testing();
 	}
 }
