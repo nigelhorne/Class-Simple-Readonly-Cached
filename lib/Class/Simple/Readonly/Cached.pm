@@ -7,6 +7,8 @@ use Class::Simple;
 
 my @ISA = ('Class::Simple');
 
+our %cached;
+
 =head1 NAME
 
 Class::Simple::Readonly::Cached - cache messages to an object
@@ -88,7 +90,7 @@ sub new {
 	if(defined($args{'object'})) {
 		if(ref($args{'object'})) {
 			if(ref($args{'object'}) eq __PACKAGE__) {
-				Carp::carp(__PACKAGE__, ' warning: $object is already cached');
+				Carp::carp(__PACKAGE__, ' warning: $object is a cached object');
 				# Note that this isn't a technique for clearing the cache
 				return $args{'object'};
 			}
@@ -100,7 +102,18 @@ sub new {
 		$args{'object'} = Class::Simple->new(%args);
 	}
 
-	return bless \%args, $class;
+	# Warn if we're caching an object that's already cached, then
+	# return the previously cached object.  Note that it could be in
+	# a separate cache
+	my $rc;
+	if($rc = $cached{$args{'object'}}) {
+		Carp::carp(__PACKAGE__, ' $object is already cached');
+	} else {
+		$rc = bless \%args, $class;
+		$cached{$args{'object'}} = $rc;
+	}
+
+	return $rc;
 }
 
 =head2 object

@@ -2,6 +2,7 @@
 
 use strict;
 use warnings;
+use Class::Simple;
 use Class::Simple::Readonly::Cached;
 use CHI;
 use Test::Most;
@@ -28,7 +29,17 @@ CARP: {
 
 		does_carp_that_matches(sub {
 			Class::Simple::Readonly::Cached->new(object => $object, cache => {});
+		}, qr/is a cached object/);
+
+
+		my $l = new_ok('Class::Simple' => [ cache => {} ]);
+		$object = new_ok('Class::Simple::Readonly::Cached' => [ cache => {}, object => $l ]);
+		my $object2;
+		does_carp_that_matches(sub {
+			$object2 = new_ok('Class::Simple::Readonly::Cached' => [ cache => {}, object => $l ]);
 		}, qr/is already cached/);
+
+		cmp_ok($object, 'eq', $object2, 'attempt to cache a previously cached object returns the same cache');
 
 		done_testing();
 	}
