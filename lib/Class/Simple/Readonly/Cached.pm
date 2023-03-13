@@ -15,11 +15,11 @@ Class::Simple::Readonly::Cached - cache messages to an object
 
 =head1 VERSION
 
-Version 0.08
+Version 0.09
 
 =cut
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 =head1 SYNOPSIS
 
@@ -332,7 +332,7 @@ L<http://search.cpan.org/dist/Class-Simple-Readonly-Cached/>
 =head1 LICENSE AND COPYRIGHT
 
 Author Nigel Horne: C<njh@bandsman.co.uk>
-Copyright (C) 2019-2022 Nigel Horne
+Copyright (C) 2019-2023 Nigel Horne
 
 Usage is subject to licence terms.
 The licence terms of this software are as follows:
