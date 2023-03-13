@@ -32,8 +32,18 @@ for example by changing its state.
 You can use this class to create a caching layer to an object of any class
 that works on objects which doesn't change its state based on input:
 
-    $val = $obj->val();
-    $val = $obj->val(a => 'b');
+    use Class::Simple::Readonly::Cached;
+
+    my $obj = Class::Simple->new();
+    $obj->val('foo');
+    $obj = Class::Simple::Readonly::Cached->new(object => $obj, cache => {});
+    my $val = $obj->val();
+    print "$val\n";	# Prints "foo"
+  
+    #... set $obj to be some other class which will take an argument 'a',
+    #	with a value 'b'
+  
+    $val = $obj->val(a => 'b');	# You
 
 =head1 SUBROUTINES/METHODS
 
