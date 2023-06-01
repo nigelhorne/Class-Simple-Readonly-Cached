@@ -125,14 +125,13 @@ sub new {
 		unless($args{'quiet'}) {
 			Carp::carp(__PACKAGE__, ' $object is already cached at ', $rc->{'line'}, ' of ', $rc->{'file'});
 		}
-		$rc = $rc->{'object'};
-	} else {
-		$rc = bless \%args, $class;
-		$cached{$args{'object'}}->{'object'} = $rc;
-		my @call_details = caller(0);
-		$cached{$args{'object'}}->{'file'} = $call_details[1];
-		$cached{$args{'object'}}->{'line'} = $call_details[2];
+		return $rc->{'object'};
 	}
+	$rc = bless \%args, $class;
+	$cached{$args{'object'}}->{'object'} = $rc;
+	my @call_details = caller(0);
+	$cached{$args{'object'}}->{'file'} = $call_details[1];
+	$cached{$args{'object'}}->{'line'} = $call_details[2];
 
 	return $rc;
 }
