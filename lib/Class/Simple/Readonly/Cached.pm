@@ -43,7 +43,7 @@ that works on objects which doesn't change its state based on input:
     #... set $obj to be some other class which will take an argument 'a',
     #	with a value 'b'
   
-    $val = $obj->val(a => 'b');	# You
+    $val = $obj->val(a => 'b');
 
 =head1 SUBROUTINES/METHODS
 
@@ -149,15 +149,15 @@ sub object
 	return $self->{'object'};
 }
 
-sub _caller_class
-{
-	my $self = shift;
-
-	if(ref($self->{'object'}) eq 'Class::Simple') {
-		# return $self->SUPER::_caller_class(@_);
-		return $self->Class::Simple::_caller_class(@_);
-	}
-}
+# sub _caller_class
+# {
+	# my $self = shift;
+# 
+	# if(ref($self->{'object'}) eq 'Class::Simple') {
+		# # return $self->SUPER::_caller_class(@_);
+		# return $self->Class::Simple::_caller_class(@_);
+	# }
+# }
 
 =head2 state
 
