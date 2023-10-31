@@ -225,7 +225,8 @@ sub AUTOLOAD {
 					die $key if($foo[0] eq __PACKAGE__ . '>UNDEF<');
 					die $key if($foo[0] eq 'never');
 				}
-				return @{$rc};
+				# return @{$rc};
+				return @foo;
 			}
 			return pop @foo;
 		}
