@@ -39,10 +39,10 @@ that works on objects which doesn't change its state based on input:
     $obj = Class::Simple::Readonly::Cached->new(object => $obj, cache => {});
     my $val = $obj->val();
     print "$val\n";	# Prints "foo"
-  
+
     #... set $obj to be some other class which will take an argument 'a',
     #	with a value 'b'
-  
+
     $val = $obj->val(a => 'b');
 
 =head1 SUBROUTINES/METHODS
@@ -78,16 +78,9 @@ The 'quiet' option, when non-zero, silences the warning.
 =cut
 
 sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto;
-
-	# Use Class::Simple::Readonly::Cached->new(), not Class::Simple::Readonly::Cached::new()
-	if(!defined($class)) {
-		Carp::carp(__PACKAGE__, ' use ->new() not ::new() to instantiate');
-		return;
-	}
-
+	my $class = shift;
 	my %args;
+
 	if(ref($_[0]) eq 'HASH') {
 		%args = %{$_[0]};
 	} elsif(ref($_[0])) {
@@ -95,6 +88,15 @@ sub new {
 		return;
 	} elsif(@_ % 2 == 0) {
 		%args = @_;
+	}
+
+	# Use Class::Simple::Readonly::Cached->new(), not Class::Simple::Readonly::Cached::new()
+	if(!defined($class)) {
+		Carp::carp(__PACKAGE__, ' use ->new() not ::new() to instantiate');
+		return;
+	} elsif(ref($class)) {
+		# clone the given object
+		return bless { %{$class}, %args }, ref($class);
 	}
 
 	if(!$args{'cache'}) {
@@ -332,7 +334,7 @@ L<http://search.cpan.org/dist/Class-Simple-Readonly-Cached/>
 =head1 LICENSE AND COPYRIGHT
 
 Author Nigel Horne: C<njh@bandsman.co.uk>
-Copyright (C) 2019-2023 Nigel Horne
+Copyright (C) 2019-2024 Nigel Horne
 
 Usage is subject to licence terms.
 The licence terms of this software are as follows:

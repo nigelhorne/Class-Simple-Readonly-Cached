@@ -27,3 +27,4 @@ t/unused.t
 t/used.t
 t/utf8.t
 t/vars.t
+t/version.t
