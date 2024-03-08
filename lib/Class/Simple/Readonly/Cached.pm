@@ -65,7 +65,7 @@ and that is used.
 
     my %hash;
     my $person = Gedcom::Person->new();
-    ... # Set up some data
+    # ...Set up some data
     my $object = Class::Simple::Readonly::Cached(object => $person, cache => \%hash);
     my $father1 = $object->father();	# Will call gedcom->father() to get the person's father
     my $father2 = $object->father();	# Will retrieve the father from the cache without calling person->father()
@@ -165,7 +165,7 @@ sub object
 
 Returns the state of the object
 
-    print Data::Dumper->new([$obj->state()]->Dump();
+    print Data::Dumper->new([$obj->state()])->Dump();
 
 =cut
 
