@@ -267,7 +267,7 @@ sub AUTOLOAD {
 	}
 	# This would be nice, but it does break gedcom.  TODO: find out why
 	# if(ref($rc) && (ref($rc) =~ /::/) && (ref($rc) ne __PACKAGE__)) {
-		# $rc = Class::Simple::Readonly::Cached->new(object => $rc, cache => {});
+		# $rc = Class::Simple::Readonly::Cached->new(object => $rc, cache => $cache);
 	# }
 	if(ref($cache) eq 'HASH') {
 		return $cache->{$key} = $rc;

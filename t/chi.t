@@ -14,7 +14,7 @@ CHI: {
 	my $cache = CHI->new(driver => 'RawMemory', global => 1);
 	$cache->on_set_error('die');
 	$cache->on_get_error('die');
-	my $l = new_ok('Class::Simple::Readonly::Cached' => [ cache => $cache, object => x->new() ]);
+	my $l = new_ok('Class::Simple::Readonly::Cached' => [ cache => $cache, object => t::x->new() ]);
 
 	ok($l->barney('betty') eq 'betty');
 	ok($l->barney() eq 'betty');
@@ -83,9 +83,11 @@ CHI: {
 		$count += $v;
 	}
 	is($count, 9, 'cache contains 9 misses');
+
+	diag($l->x()->x());
 }
 
-package x;
+package t::x;
 
 sub new {
 	my $proto = shift;
@@ -105,6 +107,13 @@ sub abc {
 
 sub a {
 	return 'a';
+}
+
+sub x {
+	my $rc = Class::Simple->new();
+	$rc->x('y');
+
+	return $rc;
 }
 
 sub empty {
