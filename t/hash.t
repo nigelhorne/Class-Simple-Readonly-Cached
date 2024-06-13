@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::Most tests => 39;
+use Test::Most tests => 42;
 use Test::NoWarnings;
 
 BEGIN {
@@ -12,6 +12,10 @@ BEGIN {
 HASH: {
 	my $cache = {};
 	my $cached = new_ok('Class::Simple::Readonly::Cached' => [ cache => $cache, object => x->new() ]);
+
+	ok($cached->can('object'));
+	ok(!$cached->can('barney'));
+	ok($cached->can('barney') || $cached->isa('Class::Simple::Readonly::Cached'));
 
 	ok($cached->barney('betty') eq 'betty');
 	ok($cached->barney() eq 'betty');
