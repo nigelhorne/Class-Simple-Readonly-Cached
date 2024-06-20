@@ -1,7 +1,7 @@
 Revision history for Class::Simple::Readonly::Cached
 
 0.10
-	Added can() method
+	Added can() and isa() methods
 	Commented out what I believe is legacy code
 	No need to deref $rc twice
 	Calling new on an object now returns a clone rather than setting the defaults in the new object

@@ -2,7 +2,7 @@
 
 use strict;
 use warnings;
-use Test::Most tests => 38;
+use Test::Most tests => 42;
 use Test::NoWarnings;
 use CHI;
 
@@ -15,6 +15,11 @@ CHI: {
 	$cache->on_set_error('die');
 	$cache->on_get_error('die');
 	my $l = new_ok('Class::Simple::Readonly::Cached' => [ cache => $cache, object => t::x->new() ]);
+
+	cmp_ok($l->isa('t::x'), '==', 1, 'isa finds embedded object');
+	cmp_ok($l->isa('Class::Simple::Readonly::Cached'), '==', 1, 'isa finds class');
+	cmp_ok($l->isa('UNIVERSAL'), '==', 1, 'isa enhericance works');
+	cmp_ok($l->isa('CHI'), '==', 0, 'isa works out when not object');
 
 	ok($l->barney('betty') eq 'betty');
 	ok($l->barney() eq 'betty');

@@ -77,7 +77,8 @@ The 'quiet' option, when non-zero, silences the warning.
 
 =cut
 
-sub new {
+sub new
+{
 	my $class = shift;
 	my %args;
 
@@ -169,7 +170,8 @@ Returns the state of the object
 
 =cut
 
-sub state {
+sub state
+{
 	my $self = shift;
 
 	return { hits => $self->{_hits}, misses => $self->{_misses} };
@@ -181,19 +183,39 @@ Returns if the embedded object can handle a message
 
 =cut
 
-sub can {
+sub can
+{
 	my $self = shift;
 	my $method = shift;
 
 	if(($method eq 'state') || ($method eq 'object') || ($method eq 'new') ||
-	   $self->{'object'}->can($method)) {
+	   $self->{'object'}->can($method) || $self->SUPER::can($method)) {
 		return 1;
 	}
 	return 0;
 }
 
+=head2 isa
+
+Returns if the embedded object is the given type of object
+
+=cut
+
+sub isa
+{
+	my $self = shift;
+	my $class = shift;
+
+	if($class eq ref($self) || ($class eq __PACKAGE__) || $self->SUPER::isa($self)) {
+		return 1;
+	}
+	return $self->{'object'}->isa($class);
+}
+
+
 # Returns a cached object, if you want it to be uncached, you'll need to clone it
-sub AUTOLOAD {
+sub AUTOLOAD
+{
 	our $AUTOLOAD;
 	my $param = $AUTOLOAD;
 	$param =~ s/.*:://;
