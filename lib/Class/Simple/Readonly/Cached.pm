@@ -175,6 +175,23 @@ sub state {
 	return { hits => $self->{_hits}, misses => $self->{_misses} };
 }
 
+=head2 can
+
+Returns if the embedded object can handle a message
+
+=cut
+
+sub can {
+	my $self = shift;
+	my $method = shift;
+
+	if(($method eq 'state') || ($method eq 'object') || ($method eq 'new') ||
+	   $self->{'object'}->can($method)) {
+		return 1;
+	}
+	return 0;
+}
+
 # Returns a cached object, if you want it to be uncached, you'll need to clone it
 sub AUTOLOAD {
 	our $AUTOLOAD;
@@ -200,12 +217,12 @@ sub AUTOLOAD {
 		return;
 	}
 
-	# my $func = $self->{'object'} . "::$param";
-	my $func = $param;
+	# my $method = $self->{'object'} . "::$param";
+	my $method = $param;
 
 	# if($param =~ /^[gs]et_/) {
 		# # $param = "SUPER::$param";
-		# return $object->$func(\@_);
+		# return $object->$method(\@_);
 	# }
 
 	my $key = $param . '::' . join('::', grep defined, @_);
@@ -245,7 +262,7 @@ sub AUTOLOAD {
 	$self->{_misses}{$key}++;
 	my $object = $self->{'object'};
 	if(wantarray) {
-		my @rc = $object->$func(@_);
+		my @rc = $object->$method(@_);
 		if(scalar(@rc) == 0) {
 			return;
 		}
@@ -256,7 +273,7 @@ sub AUTOLOAD {
 		}
 		return @rc;
 	}
-	$rc = $object->$func(@_);
+	$rc = $object->$method(@_);
 	if(!defined($rc)) {
 		if(ref($cache) eq 'HASH') {
 			$cache->{$key} = __PACKAGE__ . '>UNDEF<';
