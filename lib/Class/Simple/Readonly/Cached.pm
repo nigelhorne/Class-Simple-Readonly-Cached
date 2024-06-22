@@ -15,11 +15,11 @@ Class::Simple::Readonly::Cached - cache messages to an object
 
 =head1 VERSION
 
-Version 0.09
+Version 0.10
 
 =cut
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 =head1 SYNOPSIS
 
@@ -155,7 +155,7 @@ sub object
 # sub _caller_class
 # {
 	# my $self = shift;
-# 
+#
 	# if(ref($self->{'object'}) eq 'Class::Simple') {
 		# # return $self->SUPER::_caller_class(@_);
 		# return $self->Class::Simple::_caller_class(@_);
