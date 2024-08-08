@@ -2,7 +2,8 @@
 
 use strict;
 use warnings;
-use Test::Most tests => 43;
+use Class::Simple;
+use Test::Most tests => 50;
 use Test::NoWarnings;
 
 BEGIN {
@@ -37,7 +38,7 @@ HASH: {
 	# Check reading scalar after reading array
 	my $abc = $cached->abc();
 	my $abc2 = $uncached->abc();
-	ok($abc eq $abc2);
+	cmp_ok($abc, 'eq', $abc2, 'test reading scalar after reading array');
 
 	# Check reading array after reading scalar
 	my $def = $cached->def();
@@ -95,6 +96,21 @@ HASH: {
 		$count += $v;
 	}
 	ok($count == 10);
+
+	# Test caching objects that return objects
+	my $simple = new_ok('Class::Simple');
+	my $one = new_ok('Class::Simple');
+	$one->one('1');
+	$simple->one($one);
+	my $two = new_ok('Class::Simple');
+	$two->two('2');
+	$two->two($two);
+
+	$cached = new_ok('Class::Simple::Readonly::Cached' => [ cache => $cache, object => $simple ]);
+	cmp_ok($one->one(), '==', 1);
+	cmp_ok($cached->one()->one(), '==', 1);
+	cmp_ok($cached->one()->one(), '==', 1);
+
 }
 
 package x;

@@ -22,7 +22,7 @@ WriteMakefile(
 		# 'Test::Kwalitee' => 0,
 	}, PREREQ_PM => {
 		'Carp' => 0,
-		'Class::Simple' => 0,
+		'Class::Simple' => 0
 	},
 	dist		=> { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
 	clean		=> { FILES => 'Class-Simple-Readonly-Cached-*' },
