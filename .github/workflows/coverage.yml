@@ -1,0 +1,26 @@
+---
+name: Code coverage
+
+on:
+  pull_request:
+  push:
+    branches:
+      - '*'
+    tags-ignore:
+      - '*'
+
+jobs:
+  build:
+    runs-on: 'ubuntu-latest'
+    name: Coverage
+    container:
+      image: perl:stable
+    steps:
+      - uses: actions/checkout@v4
+      - run: cpanm --quiet --notest --installdeps .
+      - run: cpanm --quiet --notest App::Yath Devel::Cover Devel::Cover::Report::Coveralls UUID
+      - run: PERL5OPT="-MDevel::Cover" yath test --qvf t/
+      - run: cover -report coveralls
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
