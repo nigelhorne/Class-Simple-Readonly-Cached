@@ -40,7 +40,7 @@ jobs:
         run: |
           cover -test
           cover -report codecov
-	  ls -la
+          ls -la
           ./codecov -t ${{ secrets.CODECOV_TOKEN }} -f cover_db/codecov.json
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
