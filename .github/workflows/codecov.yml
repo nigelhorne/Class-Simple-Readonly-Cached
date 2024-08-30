@@ -1,5 +1,5 @@
 ---
-name: API workflow
+name: Code coverage - codecov.io
 
 on:
   pull_request:
@@ -12,7 +12,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: codeconv
+    name: codecov
+    container:
+      image: perl:stable
     steps:
       - uses: actions/checkout@v4
       - run: cpanm --quiet --notest --installdeps .
