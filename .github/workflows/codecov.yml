@@ -18,17 +18,18 @@ jobs:
       image: perl:stable
     steps:
       - uses: actions/checkout@v4
-      - run: cpanm --quiet --notest --installdeps .
-      - run: cpanm --quiet --notest App::Yath Devel::Cover Devel::Cover::Report::Codecov UUID
       - run: |
           # Replace `linux` below with the appropriate OS
           # Options are `alpine`, `linux`, `macos`, `windows`
           # curl -Os https://cli.codecov.io/latest/linux/codecov
           # chmod +x codecov
+          cpanm --quiet --notest --installdeps .
+          cpanm --quiet --notest Module::Build Devel::Cover Devel::Cover::Report::Codecov
           perl Makefile.PL
           make
-          make test
           cover -test -report codecov
           # bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_TOKEN }} -f cover_db/codecov.json
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          AUTHOR_TESTING: 1
+          AUTOMATED_TESTING: 1

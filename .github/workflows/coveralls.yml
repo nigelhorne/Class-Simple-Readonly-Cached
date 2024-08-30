@@ -20,6 +20,6 @@ jobs:
       - run: cpanm --quiet --notest --installdeps .
       - run: cpanm --quiet --notest App::Yath Devel::Cover Devel::Cover::Report::Coveralls UUID
       - run: PERL5OPT="-MDevel::Cover" yath test --qvf t/
-      - run: cover -test -report coveralls
+      - run: cover -report coveralls
         env:
           GITHUB_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
