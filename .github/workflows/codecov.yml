@@ -18,12 +18,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: cpanm --quiet --notest --installdeps .
-      - run: cpanm --quiet --notest App::Yath Devel::Cover Devel::Cover::Report::Codecov UUID
+      - run: cpanm --quiet --notest App::Yath Devel::Cover Devel::Cover::Report::Codecovbash UUID
       - run: |
           # Replace `linux` below with the appropriate OS
           # Options are `alpine`, `linux`, `macos`, `windows`
           curl -Os https://cli.codecov.io/latest/linux/codecov
           chmod +x codecov
-          cover -test -report codecov
+          cover -report codecovbash
+	  bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_TOKEN }} -f cover_db/codecov.json
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
