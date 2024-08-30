@@ -18,18 +18,29 @@ jobs:
       image: perl:stable
     steps:
       - uses: actions/checkout@v4
-      - run: |
-          # Replace `linux` below with the appropriate OS
-          # Options are `alpine`, `linux`, `macos`, `windows`
-          # curl -Os https://cli.codecov.io/latest/linux/codecov
-          # chmod +x codecov
+      - uses: codecov/codecov-action@v4
+      - name: Install Dependencies
+        run: |
           cpanm --quiet --notest --installdeps .
           cpanm --quiet --notest Module::Build Devel::Cover Devel::Cover::Report::Codecov
+      - name: Build module
+        run: |
           perl Makefile.PL
           make
-          cover -test -report codecov
+        env:
+          AUTHOR_TESTING: 1
+          AUTOMATED_TESTING: 1
+      - name: Download codecov
+        run: |
+          # Replace `linux` below with the appropriate OS
+          # Options are `alpine`, `linux`, `macos`, `windows`
+          curl -Os https://cli.codecov.io/latest/linux/codecov
+          chmod +x codecov
+      - name: Submit codecov
+        run: |
+          cover -test
+          cover -report codecov
+          ./codecov -t ${{ secrets.CODECOV_TOKEN }}
           # bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_TOKEN }} -f cover_db/codecov.json
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-          AUTHOR_TESTING: 1
-          AUTOMATED_TESTING: 1
