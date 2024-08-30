@@ -1,5 +1,5 @@
 ---
-name: Code coverage
+name: Code coverage - coveralls.io
 
 on:
   pull_request:
@@ -12,7 +12,7 @@ on:
 jobs:
   build:
     runs-on: 'ubuntu-latest'
-    name: Coverage
+    name: coveralls
     container:
       image: perl:stable
     steps:
@@ -20,7 +20,6 @@ jobs:
       - run: cpanm --quiet --notest --installdeps .
       - run: cpanm --quiet --notest App::Yath Devel::Cover Devel::Cover::Report::Coveralls UUID
       - run: PERL5OPT="-MDevel::Cover" yath test --qvf t/
-      - run: cover -report coveralls
+      - run: cover -test -report coveralls
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.COVERALLS_TOKEN }}

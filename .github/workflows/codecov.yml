@@ -1,0 +1,27 @@
+---
+name: API workflow
+
+on:
+  pull_request:
+  push:
+    branches:
+      - '*'
+    tags-ignore:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: codeconv
+    steps:
+      - uses: actions/checkout@v4
+      - run: cpanm --quiet --notest --installdeps .
+      - run: cpanm --quiet --notest App::Yath Devel::Cover Devel::Cover::Report::Codecov UUID
+      - run: |
+          # Replace `linux` below with the appropriate OS
+          # Options are `alpine`, `linux`, `macos`, `windows`
+          curl -Os https://cli.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          cover -test -report codecov
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
