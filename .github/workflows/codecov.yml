@@ -1,4 +1,5 @@
 ---
+# https://github.com/codecov/example-perl/blob/master/github.yml
 name: Code coverage - codecov.io
 
 on:
@@ -24,9 +25,9 @@ jobs:
           # Options are `alpine`, `linux`, `macos`, `windows`
           # curl -Os https://cli.codecov.io/latest/linux/codecov
           # chmod +x codecov
-	  perl Makefile.PL
-	  make
-	  make test
+          perl Makefile.PL
+          make
+          make test
           cover -test -report codecov
           # bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_TOKEN }} -f cover_db/codecov.json
         env:
