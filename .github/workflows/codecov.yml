@@ -22,8 +22,8 @@ jobs:
       - run: |
           # Replace `linux` below with the appropriate OS
           # Options are `alpine`, `linux`, `macos`, `windows`
-          curl -Os https://cli.codecov.io/latest/linux/codecov
-          chmod +x codecov
+          # curl -Os https://cli.codecov.io/latest/linux/codecov
+          # chmod +x codecov
           cover -report codecovbash
           bash <(curl -s https://codecov.io/bash) -t ${{ secrets.CODECOV_TOKEN }} -f cover_db/codecov.json
         env:
