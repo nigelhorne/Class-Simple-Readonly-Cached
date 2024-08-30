@@ -206,7 +206,7 @@ sub isa
 	my $self = shift;
 	my $class = shift;
 
-	if($class eq ref($self) || ($class eq __PACKAGE__) || $self->SUPER::isa($self)) {
+	if(($class eq ref($self)) || ($class eq __PACKAGE__) || $self->SUPER::isa($self)) {
 		return 1;
 	}
 	return $self->{'object'}->isa($class);
@@ -356,10 +356,6 @@ L<http://cpants.cpanauthors.org/dist/Class-Simple-Readonly-Cached>
 =item * CPAN Testers' Matrix
 
 L<http://matrix.cpantesters.org/?dist=Class-Simple-Readonly-Cached>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/Class-Simple-Readonly-Cached>
 
 =item * CPAN Testers Dependencies
 
