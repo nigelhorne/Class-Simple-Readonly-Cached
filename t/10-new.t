@@ -1,5 +1,6 @@
-#!perl -wT
+#!/usr/bin/env perl
 
+use warnings;
 use strict;
 
 use lib 'lib';
