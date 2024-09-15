@@ -18,7 +18,7 @@ CHI: {
 
 	cmp_ok($l->isa('t::x'), '==', 1, 'isa finds embedded object');
 	cmp_ok($l->isa('Class::Simple::Readonly::Cached'), '==', 1, 'isa finds class');
-	cmp_ok($l->isa('UNIVERSAL'), '==', 1, 'isa enhericance works');
+	cmp_ok($l->isa('UNIVERSAL'), '==', 1, 'isa inheritance works');
 	cmp_ok($l->isa('CHI'), '==', 0, 'isa works out when not object');
 
 	ok($l->barney('betty') eq 'betty');

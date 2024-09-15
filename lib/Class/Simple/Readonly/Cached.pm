@@ -188,11 +188,8 @@ sub can
 	my $self = shift;
 	my $method = shift;
 
-	if(($method eq 'state') || ($method eq 'object') || ($method eq 'new') ||
-	   $self->{'object'}->can($method) || $self->SUPER::can($method)) {
-		return 1;
-	}
-	return 0;
+	return(($method eq 'state') || ($method eq 'object') || ($method eq 'new') ||
+	   $self->{'object'}->can($method) || $self->SUPER::can($method));
 }
 
 =head2 isa
