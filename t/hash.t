@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 use Class::Simple;
-use Test::Most tests => 50;
+use Test::Most tests => 51;
 use Test::NoWarnings;
 
 BEGIN {
@@ -16,8 +16,9 @@ HASH: {
 
 	ok($cached->can('object'));
 	ok($cached->can('barney'));
+	ok($cached->can('abc'));
 	ok(!$cached->can('xyz'));
-	ok($cached->can('xyz') || $cached->isa('Class::Simple::Readonly::Cached'));
+	ok($cached->isa('Class::Simple::Readonly::Cached'));
 
 	ok($cached->barney('betty') eq 'betty');
 	ok($cached->barney() eq 'betty');
