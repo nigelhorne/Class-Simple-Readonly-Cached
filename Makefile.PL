@@ -2,13 +2,13 @@ use strict;
 use warnings;
 use ExtUtils::MakeMaker 6.64;	# 6.64 for TEST_REQUIRES
 
-my $distargs = {
+my $dist = {
 	COMPRESS => 'gzip -9f',
 	SUFFIX => 'gz'
 };
 
 if($^O eq 'darwin') {
-	$distargs->{'TAR'} = 'gtar';
+	$dist->{'TAR'} = 'gtar';
 }
 
 WriteMakefile(
@@ -34,7 +34,7 @@ WriteMakefile(
 		'Class::Simple' => 0
 	}, clean => {
 		FILES => 'Class-Simple-Readonly-Cached-*'
-	}, dist => $distargs,
+	}, dist => $dist,
 	# META_ADD => {
 		# provides => {}
 	# },
