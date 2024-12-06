@@ -82,12 +82,13 @@ sub new
 	my $class = shift;
 	my %args;
 
+	# Handle hash or hashref arguments
 	if(ref($_[0]) eq 'HASH') {
 		%args = %{$_[0]};
 	} elsif(ref($_[0])) {
 		Carp::carp('Usage: ', __PACKAGE__, '->new(cache => $cache [, object => $object ], %args)');
 		return;
-	} elsif(@_ % 2 == 0) {
+	} elsif((@_ % 2) == 0) {
 		%args = @_;
 	}
 
@@ -136,6 +137,7 @@ sub new
 	$cached{$args{'object'}}->{'file'} = $call_details[1];
 	$cached{$args{'object'}}->{'line'} = $call_details[2];
 
+	# Return the blessed object
 	return $rc;
 }
 
