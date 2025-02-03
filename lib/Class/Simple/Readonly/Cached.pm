@@ -45,6 +45,9 @@ that works on objects which doesn't change its state based on input:
 
     $val = $obj->val(a => 'b');
 
+Note that when the object goes out of scope or becomes undefined (i.e. DESTROYed),
+the cache is cleared.
+
 =head1 SUBROUTINES/METHODS
 
 =head2 new
