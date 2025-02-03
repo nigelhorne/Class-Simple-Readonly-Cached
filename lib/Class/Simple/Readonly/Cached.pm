@@ -105,6 +105,10 @@ sub new
 		Carp::carp('Usage: ', __PACKAGE__, '->new(cache => $cache [, object => $object ], %args)');
 		return;
 	}
+	# Ensure cache implements required methods
+	if((ref($args{cache}) ne 'HASH') && !($args{cache}->can('get') && $args{cache}->can('set') && $args{cache}->can('clear'))) {
+		Carp::croak("Cache object must implement 'get', 'set', and 'clear' methods");
+	}
 
 	if(defined($args{'object'})) {
 		if(ref($args{'object'})) {
