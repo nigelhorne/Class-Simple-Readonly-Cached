@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Data::Dumper;
-use Test::Most tests => 16;
+use Test::Most tests => 19;
 
 BEGIN { use_ok('Class::Simple::Readonly::Cached') };
 
@@ -48,6 +48,7 @@ $object->val('new_value'); # Change the state of the original object
 is($cached_object->val(), 'test_value', 'Cached value remains the same');
 $cached_object->{'cache'}{'val::'} = undef; # Simulate cache reset
 is($cached_object->val(), 'new_value', 'Updated value retrieved after cache reset');
+cmp_deeply($cache, { 'val::' => 'new_value' }, 'White box test the cache contents after cache reset');
 
 # Test warning when caching an already cached object
 {
@@ -56,4 +57,16 @@ is($cached_object->val(), 'new_value', 'Updated value retrieved after cache rese
 		like($warn, qr/.*is already cached.*/, 'Warning issued for caching an already cached object');
 	};
 	Class::Simple::Readonly::Cached->new(object => $object, cache => $cache);
+}
+
+# Clear the cache by calling DESTROY explicitly (simulating destruction)
+# Normally DESTROY is called by Perl, but we can simulate it here.
+{
+	ok(defined($cache->{'val::'}));
+
+	# Call DESTROY via AUTOLOAD: note that perl does not normally call DESTROY through AUTOLOAD
+	# but our AUTOLOAD in the module handles DESTROY specially.
+	$cached_object->DESTROY();
+
+	ok(!defined($cache->{'val::'}));
 }
