@@ -212,7 +212,7 @@ sub isa
 	my $self = shift;
 	my $class = shift;
 
-	if(($class eq ref($self)) || ($class eq __PACKAGE__) || $self->SUPER::isa($self)) {
+	if(($class eq ref($self)) || ($class eq __PACKAGE__) || $self->SUPER::isa($class)) {
 		return 1;
 	}
 	return $self->{'object'}->isa($class);
