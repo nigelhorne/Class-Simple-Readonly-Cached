@@ -55,7 +55,7 @@ the cache is cleared.
 Creates a Class::Simple::Readonly::Cached object.
 
 It takes one mandatory parameter: cache,
-which is either an object which understands clear(), get() and set() calls,
+which is either an object which understands purge(), get() and set() calls,
 such as an L<CHI> object;
 or is a reference to a hash where the return values are to be stored.
 
@@ -109,8 +109,8 @@ sub new
 		return;
 	}
 	# Ensure cache implements required methods
-	if((ref($args{cache}) ne 'HASH') && !($args{cache}->can('get') && $args{cache}->can('set') && $args{cache}->can('clear'))) {
-		Carp::croak("Cache object must implement 'get', 'set', and 'clear' methods");
+	if((ref($args{cache}) ne 'HASH') && !($args{cache}->can('get') && $args{cache}->can('set') && $args{cache}->can('purge'))) {
+		Carp::croak("Cache object must implement 'get', 'set', and 'purge' methods");
 	}
 
 	if(defined($args{'object'})) {
@@ -223,8 +223,7 @@ sub isa
 sub AUTOLOAD
 {
 	our $AUTOLOAD;
-	my $param = $AUTOLOAD;
-	$param =~ s/.*:://;
+	my ($param) = $AUTOLOAD =~ /::(\w+)$/;
 
 	my $self = shift;
 	my $cache = $self->{'cache'};
@@ -240,7 +239,7 @@ sub AUTOLOAD
 			if(defined($^V) && ($^V ge 'v5.14.0')) {
 				return if ${^GLOBAL_PHASE} eq 'DESTRUCT';	# >= 5.14.0 only
 			}
-			$cache->clear();
+			$cache->purge();
 		}
 		return;
 	}
@@ -253,7 +252,7 @@ sub AUTOLOAD
 		# return $object->$method(\@_);
 	# }
 
-	my $key = $param . '::' . join('::', grep defined, @_);
+	my $key = ref($self) . "::${param}::" . join('::', grep defined, @_);
 
 	my $rc;
 	if(ref($cache) eq 'HASH') {

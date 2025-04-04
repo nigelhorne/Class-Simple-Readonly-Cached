@@ -22,33 +22,34 @@ isa_ok($cached_object->object(), 'Class::Simple', 'Encapsulated object is of cor
 
 # Test uncached values
 is($cached_object->val(), 'test_value', 'Value retrieved from object matches');
-is($cache->{'val::'}, 'test_value', 'Value correctly cached');
+diag(Data::Dumper->new([$cache])->Dump()) if($ENV{'TEST_VERBOSE'});
+is($cache->{'Class::Simple::Readonly::Cached::val::'}, 'test_value', 'Value correctly cached');
 
 # Test state method
 my $state = $cached_object->state();
 ok($state, 'State method works');
 diag(Data::Dumper->new([$state])->Dump()) if($ENV{'TEST_VERBOSE'});
-cmp_deeply($state, { misses => { 'val::' => 1 }, hits => undef }, 'State reports hits and misses correctly after one miss');
+cmp_deeply($state, { misses => { 'Class::Simple::Readonly::Cached::val::' => 1 }, hits => undef }, 'State reports hits and misses correctly after one miss');
 
 # Test cached values
 is($cached_object->val(), 'test_value', 'Value retrieved from object matches');
 $state = $cached_object->state();
 diag(Data::Dumper->new([$state])->Dump()) if($ENV{'TEST_VERBOSE'});
-cmp_deeply($state, { misses => { 'val::' => 1 }, hits => { 'val::' => 1 } }, 'State reports hits and misses correctly after one miss and one hit');
+cmp_deeply($state, { misses => { 'Class::Simple::Readonly::Cached::val::' => 1 }, hits => { 'Class::Simple::Readonly::Cached::val::' => 1 } }, 'State reports hits and misses correctly after one miss and one hit');
 is($cached_object->val(), 'test_value', 'Value retrieved twice from object matches');
 $state = $cached_object->state();
 diag(Data::Dumper->new([$state])->Dump()) if($ENV{'TEST_VERBOSE'});
-cmp_deeply($state, { misses => { 'val::' => 1 }, hits => { 'val::' => 2 } }, 'State reports hits and misses correctly after one miss and two hits');
+cmp_deeply($state, { misses => { 'Class::Simple::Readonly::Cached::val::' => 1 }, hits => { 'Class::Simple::Readonly::Cached::val::' => 2 } }, 'State reports hits and misses correctly after one miss and two hits');
 
 diag(Data::Dumper->new([$cache])->Dump()) if($ENV{'TEST_VERBOSE'});
-cmp_deeply($cache, { 'val::' => 'test_value' }, 'White box test the cache contents');
+cmp_deeply($cache, { 'Class::Simple::Readonly::Cached::val::' => 'test_value' }, 'White box test the cache contents');
 
 # Test calling an uncached method
 $object->val('new_value'); # Change the state of the original object
 is($cached_object->val(), 'test_value', 'Cached value remains the same');
-$cached_object->{'cache'}{'val::'} = undef; # Simulate cache reset
+$cached_object->{'cache'}{'Class::Simple::Readonly::Cached::val::'} = undef; # Simulate cache reset
 is($cached_object->val(), 'new_value', 'Updated value retrieved after cache reset');
-cmp_deeply($cache, { 'val::' => 'new_value' }, 'White box test the cache contents after cache reset');
+cmp_deeply($cache, { 'Class::Simple::Readonly::Cached::val::' => 'new_value' }, 'White box test the cache contents after cache reset');
 
 # Test warning when caching an already cached object
 {
@@ -62,11 +63,11 @@ cmp_deeply($cache, { 'val::' => 'new_value' }, 'White box test the cache content
 # Clear the cache by calling DESTROY explicitly (simulating destruction)
 # Normally DESTROY is called by Perl, but we can simulate it here.
 {
-	ok(defined($cache->{'val::'}));
+	ok(defined($cache->{'Class::Simple::Readonly::Cached::val::'}));
 
 	# Call DESTROY via AUTOLOAD: note that perl does not normally call DESTROY through AUTOLOAD
 	# but our AUTOLOAD in the module handles DESTROY specially.
 	$cached_object->DESTROY();
 
-	ok(!defined($cache->{'val::'}));
+	ok(!defined($cache->{'Class::Simple::Readonly::Cached::val::'}));
 }

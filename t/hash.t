@@ -69,13 +69,13 @@ HASH: {
 	ok(!defined($cached->empty()));
 
 	# White box test the cache
-	ok($cache->{'barney::'} eq 'betty');
-	ok($cache->{'barney::betty'} eq 'betty');
-	ok($cache->{'echo::foo'} eq 'foo');
-	ok($cache->{'echo::bar'} eq 'bar');
-	my $a = $cache->{'a::'};
+	ok($cache->{'Class::Simple::Readonly::Cached::barney::'} eq 'betty');
+	ok($cache->{'Class::Simple::Readonly::Cached::barney::betty'} eq 'betty');
+	ok($cache->{'Class::Simple::Readonly::Cached::echo::foo'} eq 'foo');
+	ok($cache->{'Class::Simple::Readonly::Cached::echo::bar'} eq 'bar');
+	my $a = $cache->{'Class::Simple::Readonly::Cached::a::'};
 	ok(ref($a) eq 'ARRAY');
-	$abc = $cache->{'abc::'};
+	$abc = $cache->{'Class::Simple::Readonly::Cached::abc::'};
 	ok(ref($abc) eq 'ARRAY');
 
 	ok(ref($cached->object()) eq 'x');
