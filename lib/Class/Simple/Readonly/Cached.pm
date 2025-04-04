@@ -194,11 +194,9 @@ Returns if the embedded object can handle a message
 
 sub can
 {
-	my $self = shift;
-	my $method = shift;
+	my ($self, $method) = @_;
 
-	return(($method eq 'state') || ($method eq 'object') || ($method eq 'new') ||
-	   $self->{'object'}->can($method) || $self->SUPER::can($method));
+	return ($method eq 'new') || $self->{'object'}->can($method) || $self->SUPER::can($method);
 }
 
 =head2 isa
@@ -209,10 +207,9 @@ Returns if the embedded object is the given type of object
 
 sub isa
 {
-	my $self = shift;
-	my $class = shift;
+	my ($self, $class) = @_;
 
-	if(($class eq ref($self)) || ($class eq __PACKAGE__) || $self->SUPER::isa($class)) {
+	if($class eq ref($self) || ($class eq __PACKAGE__) || $self->SUPER::isa($class)) {
 		return 1;
 	}
 	return $self->{'object'}->isa($class);
