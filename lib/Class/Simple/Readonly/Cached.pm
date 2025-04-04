@@ -2,6 +2,7 @@ package Class::Simple::Readonly::Cached;
 
 use strict;
 use warnings;
+
 use Carp;
 use Class::Simple;
 
@@ -108,6 +109,7 @@ sub new
 		Carp::carp('Usage: ', __PACKAGE__, '->new(cache => $cache [, object => $object ], %args)');
 		return;
 	}
+
 	# Ensure cache implements required methods
 	if((ref($args{cache}) ne 'HASH') && !($args{cache}->can('get') && $args{cache}->can('set') && $args{cache}->can('purge'))) {
 		Carp::croak("Cache object must implement 'get', 'set', and 'purge' methods");
@@ -226,15 +228,19 @@ sub AUTOLOAD
 	my $cache = $self->{'cache'};
 
 	if($param eq 'DESTROY') {
+		if(defined($^V) && ($^V ge 'v5.14.0')) {
+			return if ${^GLOBAL_PHASE} eq 'DESTRUCT';	# >= 5.14.0 only
+		}
 		if($cache) {
 			if(ref($cache) eq 'HASH') {
-				while(my($key, $value) = each %{$cache}) {
-					delete $cache->{$key};
-				}
+				my $class = ref($self);
+				# while(my($key, $value) = each %{$cache}) {
+					# if($key =~ /^$class/) {
+						# delete $cache->{$key};
+					# }
+				# }
+				delete $cache->{$_} for grep { /^$class/ } keys %{$cache};
 				return;
-			}
-			if(defined($^V) && ($^V ge 'v5.14.0')) {
-				return if ${^GLOBAL_PHASE} eq 'DESTRUCT';	# >= 5.14.0 only
 			}
 			$cache->purge();
 		}
@@ -372,7 +378,7 @@ L<http://search.cpan.org/dist/Class-Simple-Readonly-Cached/>
 =head1 LICENSE AND COPYRIGHT
 
 Author Nigel Horne: C<njh@bandsman.co.uk>
-Copyright (C) 2019-2024 Nigel Horne
+Copyright (C) 2019-2025 Nigel Horne
 
 Usage is subject to licence terms.
 The licence terms of this software are as follows:
