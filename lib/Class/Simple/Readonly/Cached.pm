@@ -100,7 +100,8 @@ sub new
 	if(!defined($class)) {
 		Carp::carp(__PACKAGE__, ' use ->new() not ::new() to instantiate');
 		return;
-	} elsif(ref($class)) {
+	}
+	if(Scalar::Util::blessed($class)) {
 		# clone the given object
 		return bless { %{$class}, %args }, ref($class);
 	}
