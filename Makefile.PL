@@ -32,7 +32,8 @@ WriteMakefile(
 		# 'Test::Kwalitee' => 0,
 	}, PREREQ_PM => {
 		'Carp' => 0,
-		'Class::Simple' => 0
+		'Class::Simple' => 0,
+		'Params::Get' => 0
 	}, clean => {
 		FILES => 'Class-Simple-Readonly-Cached-*'
 	}, dist => $dist,

@@ -5,6 +5,7 @@ use warnings;
 
 use Carp;
 use Class::Simple;
+use Params::Get;
 
 my @ISA = ('Class::Simple');
 
@@ -84,68 +85,61 @@ The 'quiet' option, when non-zero, silences the warning.
 sub new
 {
 	my $class = shift;
-	my %args;
-
-	# Handle hash or hashref arguments
-	if(ref($_[0]) eq 'HASH') {
-		%args = %{$_[0]};
-	} elsif(ref($_[0])) {
-		Carp::carp('Usage: ', __PACKAGE__, '->new(cache => $cache [, object => $object ], %args)');
-		return;
-	} elsif((@_ % 2) == 0) {
-		%args = @_;
-	}
 
 	# Use Class::Simple::Readonly::Cached->new(), not Class::Simple::Readonly::Cached::new()
 	if(!defined($class)) {
-		Carp::carp(__PACKAGE__, ' use ->new() not ::new() to instantiate');
+		carp(__PACKAGE__, ' use ->new() not ::new() to instantiate');
 		return;
 	}
 	if(Scalar::Util::blessed($class)) {
+		my $params = Params::Get::get_params(undef, @_) || {};
 		# clone the given object
-		return bless { %{$class}, %args }, ref($class);
+		return bless { %{$class}, %{$params} }, ref($class);
 	}
 
-	if(!$args{'cache'}) {
-		Carp::carp('Usage: ', __PACKAGE__, '->new(cache => $cache [, object => $object ], %args)');
-		return;
-	}
+	my $params = Params::Get::get_params('cache', @_) || {};
 
 	# Ensure cache implements required methods
-	if((ref($args{cache}) ne 'HASH') && !($args{cache}->can('get') && $args{cache}->can('set') && $args{cache}->can('purge'))) {
-		Carp::croak("Cache object must implement 'get', 'set', and 'purge' methods");
+	if(Scalar::Util::blessed($params->{cache})) {
+		if((ref($params->{cache}) ne 'HASH') && !($params->{cache}->can('get') && $params->{cache}->can('set') && $params->{cache}->can('purge'))) {
+			Carp::croak("Cache object must implement 'get', 'set', and 'purge' methods");
+		}
+	} elsif(ref($params->{'cache'}) ne 'HASH') {
+		Carp::croak("$class: Cache must be ref to HASH or object");
 	}
 
-	if(defined($args{'object'})) {
-		if(ref($args{'object'})) {
-			if(ref($args{'object'}) eq __PACKAGE__) {
+	if(defined($params->{'object'})) {
+		if(ref($params->{'object'})) {
+			if(ref($params->{'object'}) eq __PACKAGE__) {
 				Carp::carp(__PACKAGE__, ' warning: $object is a cached object');
 				# Note that this isn't a technique for clearing the cache
-				return $args{'object'};
+				return $params->{'object'};
 			}
 		} else {
 			Carp::carp(__PACKAGE__, ' $object is a scalar');
 			return;
 		}
 	} else {
-		$args{'object'} = Class::Simple->new(%args);
+		# FIXME: If there are arguments, put the values in the cache
+
+		$params->{'object'} = Class::Simple->new(%{$params});
 	}
 
 	# Warn if we're caching an object that's already cached, then
 	# return the previously cached object.  Note that it could be in
 	# a separate cache
 	my $rc;
-	if($rc = $cached{$args{'object'}}) {
-		unless($args{'quiet'}) {
+	if($rc = $cached{$params->{'object'}}) {
+		unless($params->{'quiet'}) {
 			Carp::carp(__PACKAGE__, ' $object is already cached at ', $rc->{'line'}, ' of ', $rc->{'file'});
 		}
 		return $rc->{'object'};
 	}
-	$rc = bless \%args, $class;
-	$cached{$args{'object'}}->{'object'} = $rc;
+	$rc = bless $params, $class;
+	$cached{$params->{'object'}}->{'object'} = $rc;
 	my @call_details = caller(0);
-	$cached{$args{'object'}}->{'file'} = $call_details[1];
-	$cached{$args{'object'}}->{'line'} = $call_details[2];
+	$cached{$params->{'object'}}->{'file'} = $call_details[1];
+	$cached{$params->{'object'}}->{'line'} = $call_details[2];
 
 	# Return the blessed object
 	return $rc;
