@@ -1,6 +1,3 @@
-[![Kwalitee](https://cpants.cpanauthors.org/dist/Class-Simple-Readonly-Cached.png)](http://cpants.cpanauthors.org/dist/Class-Simple-Readonly-Cached)
-[![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Cache+messages+to+an+object+#perl&url=https://github.com/nigelhorne/class-simple-readonly-cached&via=nigelhorne)
-
 # NAME
 
 Class::Simple::Readonly::Cached - cache messages to an object
@@ -101,6 +98,8 @@ automatically be notified of progress on your bug as I make changes.
 [Class::Simple](https://metacpan.org/pod/Class%3A%3ASimple), [CHI](https://metacpan.org/pod/CHI)
 
 # SUPPORT
+
+This module is provided as-is without any warranty.
 
 You can find documentation for this module with the perldoc command.
 
