@@ -95,7 +95,11 @@ automatically be notified of progress on your bug as I make changes.
 
 # SEE ALSO
 
-[Class::Simple](https://metacpan.org/pod/Class%3A%3ASimple), [CHI](https://metacpan.org/pod/CHI)
+- [Class::Simple](https://metacpan.org/pod/Class%3A%3ASimple)
+- [CHI](https://metacpan.org/pod/CHI)
+- [Data::Reuse](https://metacpan.org/pod/Data%3A%3AReuse)
+
+    Constant values are shared between `Class::Simple::Readonly::Cached` objects.
 
 # SUPPORT
 

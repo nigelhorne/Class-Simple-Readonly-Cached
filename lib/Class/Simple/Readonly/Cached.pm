@@ -351,7 +351,17 @@ automatically be notified of progress on your bug as I make changes.
 
 =head1 SEE ALSO
 
-L<Class::Simple>, L<CHI>
+=over 4
+
+=item * L<Class::Simple>
+
+=item * L<CHI>
+
+=item * L<Data::Reuse>
+
+Constant values are shared between C<Class::Simple::Readonly::Cached> objects.
+
+=back
 
 =head1 SUPPORT
 
