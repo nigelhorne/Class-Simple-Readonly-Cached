@@ -2,6 +2,7 @@ Revision history for Class::Simple::Readonly::Cached
 
 0.12
 	Use Data::Reuse, but note RT#100461
+	Cache routines that return undef
 
 0.11	Sun Apr  6 08:47:56 EDT 2025
 	Use gtar to create a distribution on Macs

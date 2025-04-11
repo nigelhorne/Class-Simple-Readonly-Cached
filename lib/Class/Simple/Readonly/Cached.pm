@@ -290,6 +290,11 @@ sub AUTOLOAD
 	if(wantarray) {
 		my @rc = $object->$method(@_);
 		if(scalar(@rc) == 0) {
+			if(ref($cache) eq 'HASH') {
+				$cache->{$key} = __PACKAGE__ . '>UNDEF<';
+			} else {
+				$cache->set($key, __PACKAGE__ . '>UNDEF<', 'never');
+			}
 			return;
 		}
 		my $can_fixate = 1;	# Work around for RT#163955
