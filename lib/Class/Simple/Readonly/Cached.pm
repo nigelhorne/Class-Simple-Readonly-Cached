@@ -5,6 +5,7 @@ use warnings;
 
 use Carp;
 use Class::Simple;
+use Data::Reuse;
 use Params::Get;
 
 my @ISA = ('Class::Simple');
@@ -291,6 +292,19 @@ sub AUTOLOAD
 		if(scalar(@rc) == 0) {
 			return;
 		}
+		my $can_fixate = 1;	# Work around for RT#163955
+		foreach (@rc) {
+			if(ref($_)) {
+				if(ref($_) eq 'GLOB') {
+					$can_fixate = 0;
+					last;
+				} elsif((ref($_) ne 'ARRAY') && (ref($_) ne 'HASH') && (ref($_) ne 'SCALAR')) {
+					$can_fixate = 0;
+					last;
+				}
+			}
+		}
+		Data::Reuse::fixate(@rc) if($can_fixate);
 		if(ref($cache) eq 'HASH') {
 			$cache->{$key} = \@rc;
 		} else {
