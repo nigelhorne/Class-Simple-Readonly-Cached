@@ -359,7 +359,7 @@ automatically be notified of progress on your bug as I make changes.
 
 =item * L<Data::Reuse>
 
-Constant values are shared between C<Class::Simple::Readonly::Cached> objects.
+Values are shared between C<Class::Simple::Readonly::Cached> objects, since they are read-only.
 
 =back
 

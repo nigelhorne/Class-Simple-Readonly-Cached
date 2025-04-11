@@ -99,7 +99,7 @@ automatically be notified of progress on your bug as I make changes.
 - [CHI](https://metacpan.org/pod/CHI)
 - [Data::Reuse](https://metacpan.org/pod/Data%3A%3AReuse)
 
-    Constant values are shared between `Class::Simple::Readonly::Cached` objects.
+    Values are shared between `Class::Simple::Readonly::Cached` objects, since they are read-only.
 
 # SUPPORT
 
