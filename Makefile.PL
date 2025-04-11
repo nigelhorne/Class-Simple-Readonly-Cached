@@ -33,7 +33,6 @@ WriteMakefile(
 	}, PREREQ_PM => {
 		'Carp' => 0,
 		'Class::Simple' => 0,
-		'Data::Reuse' => 0,	# Fails installation tests on recent Perls, RT#100461
 		'Params::Get' => 0
 	}, clean => {
 		FILES => 'Class-Simple-Readonly-Cached-*'

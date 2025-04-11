@@ -5,7 +5,6 @@ use warnings;
 
 use Carp;
 use Class::Simple;
-use Data::Reuse;
 use Params::Get;
 
 my @ISA = ('Class::Simple');
@@ -271,7 +270,6 @@ sub AUTOLOAD
 					die $key if($foo[0] eq 'never');
 				}
 				# return @{$rc};
-				Data::Reuse::fixate @foo;
 				return @foo;
 			}
 			return pop @foo;
@@ -298,7 +296,6 @@ sub AUTOLOAD
 		} else {
 			$cache->set($key, \@rc, 'never');
 		}
-		Data::Reuse::fixate @rc;
 		return @rc;
 	}
 	$rc = $object->$method(@_);
