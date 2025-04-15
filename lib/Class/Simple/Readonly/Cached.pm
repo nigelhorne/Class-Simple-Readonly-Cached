@@ -353,6 +353,8 @@ automatically be notified of progress on your bug as I make changes.
 
 =over 4
 
+=item * L<constant::defer>
+
 =item * L<Class::Simple>
 
 =item * L<CHI>
