@@ -1,6 +1,6 @@
 Revision history for Class::Simple::Readonly::Cached
 
-0.12
+0.12	Fri Jun 27 07:23:32 EDT 2025
 	Use Data::Reuse, but note RT#100461
 	Cache routines that return undef
 

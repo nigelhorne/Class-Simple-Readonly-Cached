@@ -4,7 +4,7 @@ Class::Simple::Readonly::Cached - cache messages to an object
 
 # VERSION
 
-Version 0.11
+Version 0.12
 
 # SYNOPSIS
 
