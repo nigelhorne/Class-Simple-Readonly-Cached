@@ -98,7 +98,7 @@ sub new
 		return bless { %{$class}, %{$params} }, ref($class);
 	}
 
-	my $params = Params::Get::get_params('cache', @_) || {};
+	my $params = Params::Get::get_params('cache', @_);
 
 	# Ensure cache implements required methods
 	if(Scalar::Util::blessed($params->{cache})) {
@@ -340,7 +340,7 @@ sub AUTOLOAD
 
 =head1 AUTHOR
 
-Nigel Horne, C<< <njh at bandsman.co.uk> >>
+Nigel Horne, C<< <njh at nigelhorne.com> >>
 
 =head1 BUGS
 

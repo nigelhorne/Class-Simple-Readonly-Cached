@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use ExtUtils::MakeMaker 6.64;	# 6.64 for TEST_REQUIRES
+use ExtUtils::MakeMaker;
 
 my $dist = {
 	COMPRESS => 'gzip -9f',
@@ -13,7 +13,7 @@ if($^O eq 'darwin') {
 
 WriteMakefile(
 	NAME		=> 'Class::Simple::Readonly::Cached',
-	AUTHOR		=> q{Nigel Horne <njh@bandsman.co.uk>},
+	AUTHOR		=> q{Nigel Horne <njh@nigelhorne.com>},
 	VERSION_FROM	=> 'lib/Class/Simple/Readonly/Cached.pm',
 	ABSTRACT_FROM	=> 'lib/Class/Simple/Readonly/Cached.pm',
 	((defined($ExtUtils::MakeMaker::VERSION) &&
@@ -21,7 +21,9 @@ WriteMakefile(
 	  ? ('LICENSE'=> 'GPL')
 	  : ()),
 	PL_FILES	=> {},
-	TEST_REQUIRES => {
+	CONFIGURE_REQUIRES => {
+		'ExtUtils::MakeMaker' => 6.64,	# Minimum version for TEST_REQUIRES
+	}, TEST_REQUIRES => {
 		'CHI' => 0,
 		'Test::Carp' => 0,
 		'Test::DescribeMe' => 0,
@@ -50,10 +52,11 @@ WriteMakefile(
 				web => 'https://github.com/nigelhorne/Class-Simple-Readonly-Cached',
 				repository => 'https://github.com/nigelhorne/Class-Simple-Readonly-Cached',
 			}, bugtracker => {
-				# web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Class-Simple-Readonly-Cached',
+				url => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Class-Simple-Readonly-Cached',
+				web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=Class-Simple-Readonly-Cached',
 				mailto => 'bug-Class-Simple-Readonly-Cached@rt.cpan.org',
-				web => 'https://github.com/nigelhorne/Class-Simple-Readonly-Cached/issues',
-				url => 'https://github.com/nigelhorne/Class-Simple-Readonly-Cached/issues',
+				# web => 'https://github.com/nigelhorne/Class-Simple-Readonly-Cached/issues',
+				# url => 'https://github.com/nigelhorne/Class-Simple-Readonly-Cached/issues',
 			}
 		},
 	},
