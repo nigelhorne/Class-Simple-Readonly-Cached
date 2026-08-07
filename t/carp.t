@@ -11,9 +11,7 @@ use Test::Needs 'Test::Carp';
 CARP: {
 	Test::Carp->import();
 
-	does_croak_that_matches(sub {
-		Class::Simple::Readonly::Cached->new()
-	}, qr/^Usage:\s/);
+	throws_ok { Class::Simple::Readonly::Cached->new() } qr/Usage:/, 'new() without args dies with usage message';
 
 	does_croak_that_matches(sub {
 		Class::Simple::Readonly::Cached->new({ foo => 'bar' })

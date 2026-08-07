@@ -6,7 +6,7 @@ use warnings;
 use Carp;
 use Class::Simple;
 use Data::Reuse;
-use Params::Get;
+use Params::Get 0.15;
 
 my @ISA = ('Class::Simple');
 
