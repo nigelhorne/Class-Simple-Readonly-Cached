@@ -245,9 +245,9 @@ pre details.mutant-details ul {
 </div><div class='summary'>
 <strong>Structural Coverage (Approximate)</strong><p>
 TER1 (Statement): 100.00%<br>
-TER2 (Branch): 91.38%<br>
+TER2 (Branch): 95.16%<br>
 TER3 (LCSAJ): 100.0% (10/10)<br>
-Approximate LCSAJ segments: 59<br>
+Approximate LCSAJ segments: 63<br>
 </div>
 
     <div class="legend">
@@ -713,7 +713,7 @@ is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
 </span><span class="">  394: 
 </span><span class="">  395: 	# Premise: &#39;new&#39; belongs to the wrapper, not to the inner object.
 </span><span class="">  396: 	# Conclusion: short-circuit before any object check is needed.
-</span><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  397: 	return \&amp;new if $method eq &#39;new&#39;;
+</span><span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">  397: 	return \&amp;new if $method eq &#39;new&#39;;
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
