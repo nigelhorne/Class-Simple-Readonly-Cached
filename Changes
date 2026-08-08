@@ -31,6 +31,21 @@ Revision history for Class::Simple::Readonly::Cached
 	  SPECIFICATION, PSEUDOCODE (new), and EXAMPLE sections; add LIMITATIONS
 	- Add runtime dependencies: List::Util >= 1.33, Readonly, Scalar::Util,
 	  Sub::Private
+	- Replace _cache_get/_cache_set private subs with _build_cache_accessors:
+	  backend-specific _get/_set coderefs are now created once at construction
+	  time, eliminating a Sub::Private caller() stack check plus a ref($cache)
+	  call on every AUTOLOAD dispatch (significant for the HASH backend)
+	- Pre-compute _class = ref($self) in new(); key construction in AUTOLOAD
+	  no longer calls ref($self) on every dispatch
+	- Gate grep+join in key construction behind "if @_"; zero-argument getter
+	  calls (the most common pattern) now skip the temporary-list allocation
+	  entirely
+	- Hoist wantarray to $wantlist at AUTOLOAD entry; was called 3-4 times
+	  per miss path
+	- Replace map/grep/keys loop for %inner filtering in new() with a hash
+	  copy plus delete-slice: one allocation, two O(1) deletes
+	- Use destructuring assignment for caller(0) in new(); avoids constructing
+	  a 10-element @caller array when only fields 1 and 2 are needed
 
 0.12	Fri Jun 27 07:23:32 EDT 2025
 	Use Data::Reuse, but note RT#100461

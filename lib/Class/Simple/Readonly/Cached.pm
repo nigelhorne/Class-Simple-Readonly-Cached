@@ -205,7 +205,13 @@ sub new
 	# Object invocation: clone the existing wrapper, merging any new params.
 	if(blessed($class)) {
 		my $params = Params::Get::get_params(undef, \@_) // {};
-		return bless { %{$class}, %{$params} }, ref($class);
+		my $clone  = bless { %{$class}, %{$params} }, ref($class);
+		# If the caller overrides the cache, rebuild the pre-computed dispatch
+		# closures so they target the new backend, not the original one.
+		if(exists $params->{cache}) {
+			_build_cache_accessors($clone);
+		}
+		return $clone;
 	}
 
 	my $params = Params::Get::get_params('cache', @_);
@@ -237,9 +243,8 @@ sub new
 		# No inner object supplied: create a bare Class::Simple instance.
 		# Forward only non-wrapper keys so that 'cache' and 'quiet' do not
 		# bleed into the inner object's attribute hash.
-		my %inner = map { $_ => $params->{$_} }
-		            grep { $_ !~ /\A(?:cache|quiet)\z/ }
-		            keys %{$params};
+		my %inner = %{$params};
+		delete @inner{qw(cache quiet)};   # O(1) hash-slice delete, no temp list
 		$params->{object} = Class::Simple->new(%inner);
 	}
 
@@ -253,12 +258,17 @@ sub new
 		return $existing->{object};
 	}
 
-	my $self      = bless $params, $class;
-	my @caller    = caller(0);
-	$cached{$params->{object}} = {
+	my $self = bless $params, $class;
+
+	# Pre-compute values used on every AUTOLOAD dispatch.
+	$self->{_class} = $class;
+	_build_cache_accessors($self);
+
+	my (undef, $file, $line) = caller(0);   # destructure: only fields 1 and 2 needed
+	$cached{$self->{object}} = {
 		object => $self,
-		file   => $caller[1],
-		line   => $caller[2],
+		file   => $file,
+		line   => $line,
 	};
 
 	return $self;
@@ -424,29 +434,30 @@ sub isa
 	);
 }
 
-# _cache_get -- retrieve a value from the backing cache.
-# Purpose:     Abstract over the two cache backends (HASH ref vs CHI object).
-# Entry:       $cache is the cache ref/object; $key is the string cache key.
-# Exit:        Returns the stored value or undef if not present.
-# Side-effects: none.
-sub _cache_get :Private
+# _build_cache_accessors -- install backend-specific _get/_set closures on $self.
+# Purpose:     The cache backend (HASH vs CHI) is fixed for a wrapper's lifetime.
+#              Deciding which branch to take on every AUTOLOAD call via ref($cache)
+#              plus a Sub::Private caller() check is unnecessary overhead.  Instead
+#              we close over the bare cache reference once at construction time and
+#              expose two named slots (_get/_set) that AUTOLOAD calls directly.
+#              The closures capture the cache ref as a lexical -- no reference back
+#              to $self, so no circular-reference hazard.
+# Entry:       $self is a fully-blessed wrapper with {cache} already set.
+# Exit:        $self->{_get}, $self->{_set}, and $self->{_cache_is_hash} are set.
+# Side-effects: Mutates $self.
+sub _build_cache_accessors :Private
 {
-	my ($cache, $key) = @_;
-	return ref($cache) eq 'HASH' ? $cache->{$key} : $cache->get($key);
-}
-
-# _cache_set -- store a value in the backing cache.
-# Purpose:     Abstract over HASH vs CHI backends; CHI entries never expire.
-# Entry:       $cache, $key, $value.
-# Exit:        Returns $value (the stored value).
-# Side-effects: Mutates the cache.
-sub _cache_set :Private
-{
-	my ($cache, $key, $value) = @_;
-	ref($cache) eq 'HASH'
-		? ($cache->{$key} = $value)
-		: $cache->set($key, $value, $CHI_NEVER);
-	return $value;
+	my ($self) = @_;
+	my $c = $self->{cache};                  # captured by the closures below
+	if(ref($c) eq 'HASH') {
+		$self->{_cache_is_hash} = 1;
+		$self->{_get}           = sub { $c->{$_[0]}                       };
+		$self->{_set}           = sub { $c->{$_[0]} = $_[1]               };
+	} else {
+		$self->{_cache_is_hash} = 0;
+		$self->{_get}           = sub { $c->get($_[0])                     };
+		$self->{_set}           = sub { $c->set($_[0], $_[1], $CHI_NEVER)  };
+	}
 }
 
 # _can_fixate -- decide whether Data::Reuse::fixate is safe on a list.
@@ -480,8 +491,9 @@ sub AUTOLOAD
 	our $AUTOLOAD;
 	my ($method) = $AUTOLOAD =~ /::(\w+)\z/;
 
-	my $self  = shift;
-	my $cache = $self->{cache};
+	my $self     = shift;
+	my $cache    = $self->{cache};
+	my $wantlist = wantarray;    # hoist: Perl does not cache this; avoid 3-4 redundant calls
 
 	# DESTROY arrives here because we handle it dynamically rather than
 	# defining a named sub (which would suppress Class::Simple's AUTOLOAD).
@@ -495,10 +507,10 @@ sub AUTOLOAD
 		delete $cached{$self->{object}} if ref($self->{object});
 
 		if($cache) {
-			if(ref($cache) eq 'HASH') {
+			if($self->{_cache_is_hash}) {
 				# Only delete keys that belong to this instance's class,
 				# leaving entries from other classes untouched.
-				my $prefix = ref($self);
+				my $prefix = $self->{_class};
 				delete $cache->{$_} for grep { index($_, $prefix) == 0 } keys %{$cache};
 			} else {
 				$cache->purge();
@@ -507,24 +519,30 @@ sub AUTOLOAD
 		return;
 	}
 
-	# Build a cache key from class, method name, and all defined arguments.
-	# Undefined arguments are excluded so that ->foo(undef) and ->foo() share
-	# a key; this matches the original behaviour.
-	my $key = ref($self) . "::${method}::" . join('::', grep { defined } @_);
+	# Build the cache key.
+	# - _class is pre-computed in new() so we avoid ref($self) on every call.
+	# - The @_ guard skips grep+join entirely for the common zero-arg getter case.
+	my $key = $self->{_class} . '::' . $method . '::';
+	$key .= join('::', grep { defined } @_) if @_;
 
-	my $cached_val = _cache_get($cache, $key);
+	# Use the pre-built backend closures (_get/_set) rather than a runtime
+	# ref($cache) branch: the backend was fixed at construction time.
+	my $get = $self->{_get};
+	my $set = $self->{_set};
+
+	my $cached_val = $get->($key);
 	if(defined($cached_val)) {
 		if(ref($cached_val) eq 'ARRAY') {
 			# The method previously returned a list; serve it in either context.
 			$self->{_hits}{$key}++;
-			return wantarray ? @{$cached_val} : $cached_val->[-1];
+			return $wantlist ? @{$cached_val} : $cached_val->[-1];
 		}
 		if($cached_val eq $UNDEF_SENTINEL) {
 			# The method previously returned undef or an empty list.
 			$self->{_hits}{$key}++;
 			return;
 		}
-		if(!wantarray) {
+		if(!$wantlist) {
 			# Scalar hit in scalar context.
 			$self->{_hits}{$key}++;
 			return $cached_val;
@@ -537,25 +555,26 @@ sub AUTOLOAD
 	$self->{_misses}{$key}++;
 	my $object = $self->{object};
 
-	if(wantarray) {
+	if($wantlist) {
 		my @result = $object->$method(@_);
 		if(!@result) {
-			_cache_set($cache, $key, $UNDEF_SENTINEL);
+			$set->($key, $UNDEF_SENTINEL);
 			return;
 		}
 		# Share identical string values between cache entries to reduce memory
 		# usage.  Skip if any element is a type that fixate cannot handle safely.
 		Data::Reuse::fixate(@result) if _can_fixate(@result);
-		_cache_set($cache, $key, \@result);
+		$set->($key, \@result);
 		return @result;
 	}
 
 	my $result = $object->$method(@_);
 	if(!defined($result)) {
-		_cache_set($cache, $key, $UNDEF_SENTINEL);
+		$set->($key, $UNDEF_SENTINEL);
 		return;
 	}
-	return _cache_set($cache, $key, $result);
+	$set->($key, $result);
+	return $result;
 }
 
 =head1 LIMITATIONS
@@ -716,7 +735,8 @@ L<http://matrix.cpantesters.org/?dist=Class-Simple-Readonly-Cached>
     R  = scalar | list | undef
 
     Cache key:
-        k(w, m, a) := ref(w) ++ '::' ++ m ++ '::' ++ defined_args(a)
+        k(w, m, a) := w._class ++ '::' ++ m ++ '::' ++ defined_args(a)
+        (w._class = ref(w), pre-computed once in new() to avoid ref() per dispatch)
 
     Caching law:
         get(cache(w), k(w,m,a)) = v, v != undef
