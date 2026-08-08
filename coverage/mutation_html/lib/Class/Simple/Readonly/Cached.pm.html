@@ -244,8 +244,8 @@ pre details.mutant-details ul {
 <div class="nav"><a href="../../../../../index.html">Index</a>
 </div><div class='summary'>
 <strong>Structural Coverage (Approximate)</strong><p>
-TER1 (Statement): 97.81%<br>
-TER2 (Branch): 87.93%<br>
+TER1 (Statement): 100.00%<br>
+TER2 (Branch): 91.38%<br>
 TER3 (LCSAJ): 100.0% (10/10)<br>
 Approximate LCSAJ segments: 59<br>
 </div>
@@ -538,7 +538,7 @@ Approximate LCSAJ segments: 59<br>
 </span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  240: 			# Silently returning the existing wrapper is safer than building
 </span><span class="">  241: 			# a second layer that would double-count misses/hits.
 </span><span class="">  242: 			Carp::carp(__PACKAGE__ . &#39;: warning: $object is already a cached object&#39;);
-</span><span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">  243: 			return $params-&gt;{object};
+</span><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  243: 			return $params-&gt;{object};
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
