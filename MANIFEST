@@ -1,4 +1,5 @@
 Changes
+cpanfile
 lib/Class/Simple/Readonly/Cached.pm
 LICENSE
 Makefile.PL
@@ -15,6 +16,7 @@ t/eol.t
 t/hash.t
 t/lcm.t
 t/links.t
+t/locales.t
 t/minimum.t
 t/no404s.t
 t/noopentickets.t
