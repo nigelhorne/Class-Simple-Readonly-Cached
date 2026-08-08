@@ -6,7 +6,7 @@ use warnings;
 use Test::Most;
 
 if($ENV{AUTHOR_TESTING}) {
-	eval 'use Test::Spelling';
+	eval { require Test::Spelling; Test::Spelling->import() };
 	if($@) {
 		plan(skip_all => 'Test::Spelling required for testing POD spelling');
 	} else {

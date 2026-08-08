@@ -141,7 +141,8 @@ C<object>.  Croaks on invalid C<cache>.
     my $result2 = $cached->compute();   # from cache -- object not called
 
     # --- CHI cache (persistent, file-based) ---
-    my $chi = CHI->new(driver => 'File', root_dir => '/tmp/my-cache');
+    use File::Temp qw(tempdir);
+    my $chi = CHI->new(driver => 'File', root_dir => tempdir(CLEANUP => 1));
     my $cached2 = Class::Simple::Readonly::Cached->new(
         object => $obj,
         cache  => $chi,

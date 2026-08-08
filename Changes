@@ -61,6 +61,15 @@ Revision history for Class::Simple::Readonly::Cached
 	  cache-validation guard rejects all non-HASH refs, not only scalar refs
 	- t/lcm.t: load Class::Simple::Readonly::Cached at compile time to prevent
 	  Sub::Private's CHECK block from firing too late under prove
+	[ Security ]
+	- Replace all string eval() with block eval{} in test files (t/noplan.t,
+	  t/pod-cm.t, t/pod-spelling.t, t/noopentickets.t): string eval runs the
+	  full Perl parser and becomes a code-injection vector if a variable is ever
+	  interpolated; block eval is strictly equivalent for fixed module loads
+	- Replace hardcoded /tmp/my-cache path in new() POD EXAMPLE with
+	  File::Temp::tempdir(CLEANUP=>1): predictable /tmp paths are vulnerable to
+	  symlink attacks and world-readable by default; File::Temp generates a
+	  mode-0700 directory with a random suffix
 
 0.12	Fri Jun 27 07:23:32 EDT 2025
 	Use Data::Reuse, but note RT#100461

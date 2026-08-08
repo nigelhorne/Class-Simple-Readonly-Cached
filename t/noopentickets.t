@@ -7,7 +7,7 @@ use Test::Most tests => 3;
 NOBUGS: {
 	SKIP: {
 		if($ENV{AUTHOR_TESTING}) {
-			eval 'use WWW::RT::CPAN';	# FIXME: use a REST client
+			eval { require WWW::RT::CPAN };	# FIXME: use a REST client
 			if($@) {
 				diag('WWW::RT::CPAN required to check for open tickets');
 				skip('WWW::RT::CPAN required to check for open tickets', 3);
