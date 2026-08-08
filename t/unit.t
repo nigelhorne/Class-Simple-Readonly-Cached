@@ -26,7 +26,7 @@ use Test::Most;
 use Test::Returns;
 use Test::Mockingbird;
 use Readonly;
-use Class::Simple::Readonly::Cached;
+use_ok('Class::Simple::Readonly::Cached');
 
 # ===========================================================================
 # Mock inner-object and cache-object packages used throughout the tests.
