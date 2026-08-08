@@ -40,7 +40,7 @@ WriteMakefile(
 		'Params::Get'  => 0.15,
 		'Readonly'     => 0,
 		'Scalar::Util' => 0,
-		'Sub::Private' => 0,
+		'Sub::Private' => 0.05,
 	}, clean => {
 		FILES => 'Class-Simple-Readonly-Cached-*'
 	}, dist => $dist,

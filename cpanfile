@@ -9,7 +9,7 @@ requires 'List::Util', '1.33';   # none() added in 1.33
 requires 'Params::Get', '0.15';
 requires 'Readonly';
 requires 'Scalar::Util';
-requires 'Sub::Private';
+requires 'Sub::Private', '0.05';
 
 on 'configure' => sub {
 	requires 'ExtUtils::MakeMaker', '6.64';   # Minimum version for TEST_REQUIRES

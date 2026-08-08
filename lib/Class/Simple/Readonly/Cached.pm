@@ -16,7 +16,7 @@ use Readonly;
 # package.  Sub::Private respects $ENV{HARNESS_ACTIVE}, so white-box tests
 # (run under prove / make test) are automatically exempt.
 BEGIN { $Sub::Private::config{mode} = 'enforce' }
-use Sub::Private;
+use Sub::Private 0.05;
 
 # @ISA is intentionally EMPTY.
 #
