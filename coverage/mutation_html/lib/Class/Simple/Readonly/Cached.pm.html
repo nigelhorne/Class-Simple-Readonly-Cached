@@ -538,7 +538,7 @@ Approximate LCSAJ segments: 63<br>
 </span><p> <b> Mutants (Total: 1, Killed: 1, Survived: 0)</b><p><span class="">  240: 			# Silently returning the existing wrapper is safer than building
 </span><span class="">  241: 			# a second layer that would double-count misses/hits.
 </span><span class="">  242: 			Carp::carp(__PACKAGE__ . &#39;: warning: $object is already a cached object&#39;);
-</span><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  243: 			return $params-&gt;{object};
+</span><span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">  243: 			return $params-&gt;{object};
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
@@ -713,7 +713,7 @@ is( func(INPUT), EXPECTED, &#39;Verify correct return value&#39; );
 </span><span class="">  394: 
 </span><span class="">  395: 	# Premise: &#39;new&#39; belongs to the wrapper, not to the inner object.
 </span><span class="">  396: 	# Conclusion: short-circuit before any object check is needed.
-</span><span class="survived-2 tooltip" data-tooltip="Return value mutation survived. Add tests asserting exact return values. Boolean logic mutation survived. Add tests covering both true and false paths.">  397: 	return \&amp;new if $method eq &#39;new&#39;;
+</span><span class="survived-2 tooltip" data-tooltip="Boolean logic mutation survived. Add tests covering both true and false paths. Return value mutation survived. Add tests asserting exact return values.">  397: 	return \&amp;new if $method eq &#39;new&#39;;
 </span>
 					<details class="mutant-details">
 					<summary>Mutants (Total: 2, Killed: 0, Survived: 2)</summary>
