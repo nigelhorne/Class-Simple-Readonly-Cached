@@ -1,0 +1,413 @@
+{
+   "runs" : [
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222068.65485,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "-e",
+         "start" : 1786222059.69548,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222059.83953,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "-e",
+         "start" : 1786222059.83944,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222060.16232,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/10-new.t",
+         "start" : 1786222060.16058,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222060.54816,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/30-basics.t",
+         "start" : 1786222060.53544,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222060.97644,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/carp.t",
+         "start" : 1786222060.97074,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222061.47767,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/cgi_security.t",
+         "start" : 1786222061.36073,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222062.00623,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/chi.t",
+         "start" : 1786222061.94888,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222062.33053,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/comment-spelling.t",
+         "start" : 1786222062.33031,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222062.56351,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/eof.t",
+         "start" : 1786222062.56326,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222062.7949,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/eol.t",
+         "start" : 1786222062.79472,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222063.15935,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/function.t",
+         "start" : 1786222063.11518,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222063.59213,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/hash.t",
+         "start" : 1786222063.58115,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222063.88235,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/lcm.t",
+         "start" : 1786222063.88232,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222064.10941,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/links.t",
+         "start" : 1786222064.10918,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222064.38131,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/locales.t",
+         "start" : 1786222064.38109,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222064.62122,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/minimum.t",
+         "start" : 1786222064.62103,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222064.85625,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/modules-used.t",
+         "start" : 1786222064.85605,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222065.08596,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/no404s.t",
+         "start" : 1786222065.08575,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222065.34234,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/noopentickets.t",
+         "start" : 1786222065.34102,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222065.58303,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/noplan.t",
+         "start" : 1786222065.58285,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222065.83589,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/pod-cm.t",
+         "start" : 1786222065.83514,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222066.10088,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/pod-snippets.t",
+         "start" : 1786222066.10065,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222066.3396,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/pod-spelling.t",
+         "start" : 1786222066.33939,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222066.56848,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/pod-synopsis.t",
+         "start" : 1786222066.56827,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222066.79793,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/pod.t",
+         "start" : 1786222066.79774,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222067.0533,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/port.t",
+         "start" : 1786222067.05307,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222067.42181,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/unit.t",
+         "start" : 1786222067.35379,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222067.78233,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/unused.t",
+         "start" : 1786222067.78211,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222068.09822,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/utf8.t",
+         "start" : 1786222068.09591,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222068.38626,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/vars.t",
+         "start" : 1786222068.38606,
+         "version" : "0.12"
+      },
+      {
+         "OS" : "linux",
+         "abstract" : "cache messages to an object",
+         "dir" : "/home/runner/work/Class-Simple-Readonly-Cached/Class-Simple-Readonly-Cached",
+         "finish" : 1786222068.61835,
+         "name" : "Class-Simple-Readonly-Cached",
+         "perl" : "5.40.4",
+         "run" : "t/version.t",
+         "start" : 1786222068.61816,
+         "version" : "0.12"
+      }
+   ],
+   "summary" : {
+      "Total" : {
+         "branch" : {
+            "covered" : 59,
+            "error" : 3,
+            "percentage" : 95.1612903225806,
+            "total" : 62,
+            "uncoverable" : 0
+         },
+         "condition" : {
+            "covered" : 23,
+            "error" : 9,
+            "percentage" : 71.875,
+            "total" : 32,
+            "uncoverable" : 0
+         },
+         "statement" : {
+            "covered" : 153,
+            "percentage" : 100,
+            "total" : 153
+         },
+         "subroutine" : {
+            "covered" : 27,
+            "percentage" : 100,
+            "total" : 27
+         },
+         "total" : {
+            "covered" : 262,
+            "error" : 12,
+            "percentage" : 95.6204379562044,
+            "total" : 274,
+            "uncoverable" : 0
+         }
+      },
+      "blib/lib/Class/Simple/Readonly/Cached.pm" : {
+         "branch" : {
+            "covered" : 59,
+            "error" : 3,
+            "percentage" : 95.1612903225806,
+            "total" : 62,
+            "uncoverable" : 0
+         },
+         "condition" : {
+            "covered" : 23,
+            "error" : 9,
+            "percentage" : 71.875,
+            "total" : 32,
+            "uncoverable" : 0
+         },
+         "statement" : {
+            "covered" : 153,
+            "percentage" : 100,
+            "total" : 153
+         },
+         "subroutine" : {
+            "covered" : 27,
+            "percentage" : 100,
+            "total" : 27
+         },
+         "total" : {
+            "covered" : 262,
+            "error" : 12,
+            "percentage" : 95.6204379562044,
+            "total" : 274,
+            "uncoverable" : 0
+         }
+      }
+   }
+}
