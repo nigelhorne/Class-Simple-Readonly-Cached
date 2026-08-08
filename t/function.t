@@ -141,7 +141,7 @@ subtest '_can_fixate: does not clobber $_ (List::Util::none localizes it)' => su
 subtest '_build_cache_accessors (hash): sets _cache_is_hash=1, _get, _set' => sub {
 	local %Class::Simple::Readonly::Cached::cached;
 	my $cache = {};
-	my $self  = bless { cache => $cache }, $W;
+	my $self  = bless { cache => $cache, _class => $W }, $W;
 
 	_build_cache_accessors($self);
 
@@ -153,7 +153,7 @@ subtest '_build_cache_accessors (hash): sets _cache_is_hash=1, _get, _set' => su
 subtest '_build_cache_accessors (hash): _get and _set operate on the cache hash' => sub {
 	local %Class::Simple::Readonly::Cached::cached;
 	my $cache = {};
-	my $self  = bless { cache => $cache }, $W;
+	my $self  = bless { cache => $cache, _class => $W }, $W;
 	_build_cache_accessors($self);
 
 	$self->{_set}->('the_key', 'the_val');
@@ -169,7 +169,7 @@ subtest '_build_cache_accessors (hash): _get and _set operate on the cache hash'
 subtest '_build_cache_accessors (hash): closure captures cache ref, not $self' => sub {
 	local %Class::Simple::Readonly::Cached::cached;
 	my $cache = {};
-	my $self  = bless { cache => $cache }, $W;
+	my $self  = bless { cache => $cache, _class => $W }, $W;
 	_build_cache_accessors($self);
 
 	# memory_cycle_ok verifies no $self -> closure -> $self cycle.
@@ -185,7 +185,7 @@ subtest '_build_cache_accessors (hash): closure captures cache ref, not $self' =
 subtest '_build_cache_accessors (CHI): sets _cache_is_hash=0, _get, _set' => sub {
 	local %Class::Simple::Readonly::Cached::cached;
 	my $chi  = FuncTest::ChiLike->new();
-	my $self = bless { cache => $chi }, $W;
+	my $self = bless { cache => $chi, _class => $W }, $W;
 	_build_cache_accessors($self);
 
 	is($self->{_cache_is_hash}, 0, '_cache_is_hash set to 0 for CHI backend');

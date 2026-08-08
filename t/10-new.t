@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use autodie qw(:all);
 
-use lib 'lib';
 use Test::Most tests => 5;
 
 BEGIN { use_ok('Class::Simple::Readonly::Cached') }
