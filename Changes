@@ -61,6 +61,14 @@ Revision history for Class::Simple::Readonly::Cached
 	  cache-validation guard rejects all non-HASH refs, not only scalar refs
 	- t/lcm.t: load Class::Simple::Readonly::Cached at compile time to prevent
 	  Sub::Private's CHECK block from firing too late under prove
+	- Add t/unit.t: 28-subtest black-box unit suite driven strictly by the POD
+	  API; uses Test::Mockingbird (spy/mock), Test::Returns (returns_is), and a
+	  ledger hash that tracks every documented message and return state, asserting
+	  the ledger is empty at the end; inline UnitTest::Inner, UnitTest::BadCacheObj,
+	  and UnitTest::ChiLike packages give full control over inner-object and
+	  cache-backend behaviour; spy on UnitTest::Inner::scalar_val verifies inner
+	  method is called exactly once on miss and zero additional times on hit;
+	  spy on UnitTest::ChiLike::purge verifies purge() is called on CHI DESTROY
 	[ Security ]
 	- Replace all string eval() with block eval{} in test files (t/noplan.t,
 	  t/pod-cm.t, t/pod-spelling.t, t/noopentickets.t): string eval runs the
