@@ -196,7 +196,7 @@ subtest '_build_cache_accessors (CHI): sets _cache_is_hash=0, _get, _set' => sub
 subtest '_build_cache_accessors (CHI): _get/_set delegate to the cache object' => sub {
 	local %Class::Simple::Readonly::Cached::cached;
 	my $chi  = FuncTest::ChiLike->new();
-	my $self = bless { cache => $chi }, $W;
+	my $self = bless { cache => $chi, _class => $W }, $W;
 	_build_cache_accessors($self);
 
 	$self->{_set}->('chi_k', 'chi_v');
@@ -209,7 +209,7 @@ subtest '_build_cache_accessors (CHI): _set passes "never" as the expiry argumen
 	# $cache->set().  Inspect the recorded call on FuncTest::ChiLike.
 	local %Class::Simple::Readonly::Cached::cached;
 	my $chi  = FuncTest::ChiLike->new();
-	my $self = bless { cache => $chi }, $W;
+	my $self = bless { cache => $chi, _class => $W }, $W;
 	_build_cache_accessors($self);
 
 	$self->{_set}->('k', 'v');
@@ -223,7 +223,7 @@ subtest '_build_cache_accessors (CHI): _set passes "never" as the expiry argumen
 subtest '_build_cache_accessors (CHI): closure does not create a cycle' => sub {
 	local %Class::Simple::Readonly::Cached::cached;
 	my $chi  = FuncTest::ChiLike->new();
-	my $self = bless { cache => $chi }, $W;
+	my $self = bless { cache => $chi, _class => $W }, $W;
 	_build_cache_accessors($self);
 
 	memory_cycle_ok($self,
