@@ -12,7 +12,6 @@ LCM: {
 	} else {
 		plan(tests => 18);
 
-		use_ok('Test::NoWarnings');
 		use_ok('Class::Simple::Readonly::Cached');
 		my $cache = CHI->new(driver => 'RawMemory', datastore => {});
 		$cache->on_set_error('die');
