@@ -3,13 +3,16 @@
 use strict;
 use warnings;
 use CHI;
-use Test::Most;
 use Test::Needs 'Locale::Country::Multilingual';
 
-plan(tests => 18);
+# Load at compile time so Sub::Private's CHECK block runs at the correct phase.
+# The use_ok() calls below are still exercised (require is a no-op for already-
+# loaded modules) and keep the test count correct.
+use Test::NoWarnings;
+use Class::Simple::Readonly::Cached;
 
-use_ok('Test::NoWarnings');
-use_ok('Class::Simple::Readonly::Cached');
+use Test::Most tests => 16;
+
 my $cache = CHI->new(driver => 'RawMemory', datastore => {});
 $cache->on_set_error('die');
 $cache->on_get_error('die');
