@@ -69,6 +69,16 @@ Revision history for Class::Simple::Readonly::Cached
 	  cache-backend behaviour; spy on UnitTest::Inner::scalar_val verifies inner
 	  method is called exactly once on miss and zero additional times on hit;
 	  spy on UnitTest::ChiLike::purge verifies purge() is called on CHI DESTROY
+	- Add t/function.t: 29-subtest white-box suite for internal helpers and
+	  data-structure invariants; directly calls _can_fixate (all 6 equivalence
+	  partitions: empty/plain/unblessed-ref/blessed/GLOB/$_ preservation) and
+	  _build_cache_accessors (hash and CHI backends: field types, read/write
+	  correctness, 'never' expiry); uses Test::Memory::Cycle to confirm closures
+	  capture $c not $self (no circular reference); verifies exact cache key byte
+	  format for all arg combinations; tests DESTROY prefix filtering and
+	  undef-cache guard; tests state() live-ref semantics; uses spy on
+	  Data::Reuse::fixate to verify fixate is called for safe lists and skipped
+	  for lists containing blessed objects
 	[ Security ]
 	- Replace all string eval() with block eval{} in test files (t/noplan.t,
 	  t/pod-cm.t, t/pod-spelling.t, t/noopentickets.t): string eval runs the
