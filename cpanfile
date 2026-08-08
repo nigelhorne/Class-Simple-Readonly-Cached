@@ -23,6 +23,7 @@ on 'test' => sub {
 	requires 'Test::Needs';
 	requires 'Test::NoWarnings';
 	requires 'Test::Requires';
+	requires 'Test::Returns';
 };
 
 on 'develop' => sub {

@@ -31,6 +31,7 @@ WriteMakefile(
 		'Test::Needs' => 0,
 		'Test::NoWarnings' => 0,
 		'Test::Requires' => 0,
+		'Test::Returns' => 0,
 		# 'Test::Kwalitee' => 0,
 	}, PREREQ_PM => {
 		'Carp'         => 0,
