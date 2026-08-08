@@ -46,6 +46,21 @@ Revision history for Class::Simple::Readonly::Cached
 	  copy plus delete-slice: one allocation, two O(1) deletes
 	- Use destructuring assignment for caller(0) in new(); avoids constructing
 	  a 10-element @caller array when only fields 1 and 2 are needed
+	- Refactor can() from a nested ternary chain to explicit guard clauses with
+	  syllogistic premise/conclusion comments
+	- Refactor isa() to guard-clause style; document that $class eq ref($self)
+	  is an intentional O(1) fast path, not dead code redundant with SUPER::isa
+	- Add premise/conclusion comments to all three AUTOLOAD cache-hit exits and
+	  both miss-path branches to make the mutual-exclusion invariant explicit
+	- Extend new() FORMAL SPECIFICATION with post-construction invariants:
+	  W._class, W._cache_is_hash, W._get, W._set; add clone corollary
+	- Update AUTOLOAD POD to document the three mutually exclusive cached-value
+	  forms (ARRAY ref / UNDEF_SENTINEL / plain scalar) and the scalar-then-list
+	  fall-through behaviour
+	- t/carp.t: add cache=>[] (ARRAY ref) equivalence-partition test; proves the
+	  cache-validation guard rejects all non-HASH refs, not only scalar refs
+	- t/lcm.t: load Class::Simple::Readonly::Cached at compile time to prevent
+	  Sub::Private's CHECK block from firing too late under prove
 
 0.12	Fri Jun 27 07:23:32 EDT 2025
 	Use Data::Reuse, but note RT#100461

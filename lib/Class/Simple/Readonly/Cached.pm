@@ -186,8 +186,10 @@ C<object>.  Croaks on invalid C<cache>.
                                      unless object was supplied
     6.  Check double-wrap registry:  if object in %cached, carp and return
                                      existing wrapper (unless quiet)
-    7.  Bless and register:          bless $params, $class; store in %cached
-                                     with caller file and line
+    7.  Bless and register:          bless $params, $class; set _class = $class;
+                                     call _build_cache_accessors to install
+                                     _get/_set coderefs and _cache_is_hash;
+                                     store in %cached with caller file and line
     8.  Return $self
 
 =cut
@@ -388,11 +390,20 @@ A code reference if the method exists, C<undef> otherwise.
 sub can
 {
 	my ($self, $method) = @_;
-	return (
-		$method eq 'new'                       ? \&new
-		: !ref($self) || !ref($self->{object}) ? $self->SUPER::can($method)
-		:                                         ($self->{object}->can($method) // $self->SUPER::can($method))
-	);
+
+	# Premise: 'new' belongs to the wrapper, not to the inner object.
+	# Conclusion: short-circuit before any object check is needed.
+	return \&new if $method eq 'new';
+
+	# Premise: if $self is not a ref (class-level call) OR the inner object
+	#          has been freed (global destruction), there is no object to delegate to.
+	# Conclusion: fall back to UNIVERSAL for what this package directly provides.
+	return $self->SUPER::can($method)
+		if !ref($self) || !ref($self->{object});
+
+	# Premise: $self->{object} is alive and is a valid reference (Invariant I4).
+	# Conclusion: delegate to the inner object first; fall back to UNIVERSAL.
+	return $self->{object}->can($method) // $self->SUPER::can($method);
 }
 
 =head2 isa
@@ -426,12 +437,29 @@ True if the wrapper or its inner object is-a C<$class>.
 sub isa
 {
 	my ($self, $class) = @_;
-	return (
-		$class eq ref($self)  || $class eq __PACKAGE__
-		|| $class eq 'Class::Simple' || $self->SUPER::isa($class)
-			? 1
-			: (ref($self) && ref($self->{object}) && $self->{object}->isa($class))
-	);
+
+	# Fast-path guards that do not require examining the inner object.
+	#
+	# Premise 1: $class eq ref($self) is logically subsumed by SUPER::isa,
+	#   which also returns true for an exact class match -- but the string
+	#   equality check is O(1) and avoids the UNIVERSAL dispatch overhead.
+	#   Keeping it as a fast path is a valid micro-optimisation, NOT dead code.
+	# Premise 2: $class eq __PACKAGE__ handles the subclass case:
+	#   a My::Cached instance asked isa('Class::Simple::Readonly::Cached').
+	# Premise 3: $class eq 'Class::Simple' is required because @ISA is
+	#   intentionally empty; SUPER::isa would return false without this.
+	# Premise 4: SUPER::isa covers the full UNIVERSAL hierarchy.
+	# Conclusion: any of these makes the wrapper itself a member of $class.
+	return 1 if $class eq ref($self)
+	          || $class eq __PACKAGE__
+	          || $class eq 'Class::Simple'
+	          || $self->SUPER::isa($class);
+
+	# Premise: none of the wrapper-level checks matched.
+	# Premise: $self->{object} may be freed during global destruction; guard
+	#          with ref() before delegating.
+	# Conclusion: isa is true iff the inner object claims it.
+	return !!(ref($self) && ref($self->{object}) && $self->{object}->isa($class));
 }
 
 # _build_cache_accessors -- install backend-specific _get/_set closures on $self.
@@ -476,13 +504,44 @@ sub _can_fixate :Private
 
 =head2 AUTOLOAD
 
-Not called directly.  Intercepts all method calls not defined
-explicitly in this package, proxies them to the inner object, and
-caches the results.
+Not called directly.  Intercepts every method call not explicitly
+defined in this package, looks up the result in the cache, and on a
+miss proxies the call to the inner object and stores the result.
 
-Handles C<DESTROY> specially: removes the wrapper from the
-double-wrap registry and clears cache entries whose keys begin with
-the class name, before allowing normal Perl destruction to proceed.
+Cache lookup and storage use the pre-built C<_get>/C<_set> coderefs
+installed by C<_build_cache_accessors> at construction time, so the
+backend-type decision (HASH vs CHI) is made once -- never on each
+dispatch.
+
+Three stored-value forms are mutually exclusive and exhaustive:
+
+=over 4
+
+=item ARRAY ref
+
+The wrapped method previously returned a list.  Served as C<@array>
+in list context, or C<$array[-1]> in scalar context.
+
+=item C<$UNDEF_SENTINEL>
+
+The wrapped method returned C<undef> or an empty list.  Stored as the
+sentinel string so a cache miss (undefined value) can be distinguished
+from a cached C<undef>.
+
+=item Any other defined scalar
+
+The wrapped method returned a plain scalar in scalar context.  Served
+as-is in scalar context.  If the caller subsequently asks for the
+same key in list context, the scalar cannot be adapted -- the call is
+treated as a miss and the method is re-invoked so the array form gets
+independently cached.
+
+=back
+
+Handles C<DESTROY> specially: removes the wrapper from the double-wrap
+registry and clears cache entries whose keys begin with C<$self->{_class}>
+(Invariant I3 guarantees this is always set), then returns without
+calling the inner object's DESTROY.
 
 =cut
 
@@ -532,37 +591,55 @@ sub AUTOLOAD
 
 	my $cached_val = $get->($key);
 	if(defined($cached_val)) {
+		# Premise: $cached_val is defined, so it was previously stored.
+		# The stored value is one of exactly three mutually exclusive forms:
+		#   (a) ARRAY ref  -- method returned a list
+		#   (b) UNDEF_SENTINEL  -- method returned undef or empty list
+		#   (c) any other scalar  -- method returned a plain scalar
+		# Each is a separate equivalence partition; no overlap is possible.
+
 		if(ref($cached_val) eq 'ARRAY') {
-			# The method previously returned a list; serve it in either context.
+			# Premise: a list result was cached.
+			# Conclusion: serve it in either call context.
 			$self->{_hits}{$key}++;
 			return $wantlist ? @{$cached_val} : $cached_val->[-1];
 		}
 		if($cached_val eq $UNDEF_SENTINEL) {
-			# The method previously returned undef or an empty list.
+			# Premise: the cached result was undef or an empty list.
+			# Conclusion: return "nothing" regardless of call context.
 			$self->{_hits}{$key}++;
 			return;
 		}
 		if(!$wantlist) {
-			# Scalar hit in scalar context.
+			# Premise: a scalar is cached AND the caller wants a scalar.
+			# Conclusion: exact hit -- return the scalar directly.
 			$self->{_hits}{$key}++;
 			return $cached_val;
 		}
-		# A scalar is cached but the caller now wants a list.  Fall through
-		# to re-invoke the method in list context and cache the array result.
-		# This is not counted as a hit because we could not serve it from cache.
+		# Premise: a scalar is cached BUT the caller now wants a list.
+		# Conclusion: this cannot be served from cache (see LIMITATIONS).
+		# Fall through to re-invoke in list context so the array form
+		# gets cached.  This is NOT counted as a hit.
 	}
 
+	# Premise: no usable cached value exists for this key+context combination.
+	# Conclusion: invoke the real object and cache whatever it returns.
 	$self->{_misses}{$key}++;
 	my $object = $self->{object};
 
 	if($wantlist) {
 		my @result = $object->$method(@_);
 		if(!@result) {
+			# Premise: method returned an empty list (or undef in list context).
+			# Conclusion: store the sentinel so future calls are hits, not misses.
 			$set->($key, $UNDEF_SENTINEL);
 			return;
 		}
-		# Share identical string values between cache entries to reduce memory
-		# usage.  Skip if any element is a type that fixate cannot handle safely.
+		# Premise: @result is non-empty.
+		# Conclusion: cache as an arrayref so we can distinguish "list result"
+		#   (stored as ARRAY ref) from "scalar result" (stored as plain scalar).
+		#   fixate() shares memory across identical string values -- skip if any
+		#   element is a type that Data::Reuse cannot handle (RT#100461).
 		Data::Reuse::fixate(@result) if _can_fixate(@result);
 		$set->($key, \@result);
 		return @result;
@@ -570,9 +647,15 @@ sub AUTOLOAD
 
 	my $result = $object->$method(@_);
 	if(!defined($result)) {
+		# Premise: method returned undef in scalar context.
+		# Conclusion: store sentinel; a bare undef in the cache would be
+		#   indistinguishable from "cache miss" on the next call.
 		$set->($key, $UNDEF_SENTINEL);
 		return;
 	}
+	# Premise: $result is a defined scalar.
+	# Conclusion: store it directly; ref($result) eq 'ARRAY' is impossible here
+	#   because the scalar branch is only reached when !$wantlist.
 	$set->($key, $result);
 	return $result;
 }
@@ -690,11 +773,19 @@ L<http://matrix.cpantesters.org/?dist=Class-Simple-Readonly-Cached>
     Precondition:
         valid_cache(P.cache)
 
+    Post-construction invariants (hold for all W returned by new()):
+        W._class         = C
+        W._cache_is_hash = (ref(P.cache) = 'HASH')
+        W._get           = λk. (W._cache_is_hash ? W.cache[k] : W.cache.get(k))
+        W._set           = λ(k,v). (W._cache_is_hash ? W.cache[k]:=v
+                                                      : W.cache.set(k,v,'never'))
+
     Double-wrap invariant:
         forall o in Dom(cached): new(C, {object: o, ...}) = cached[o].object
 
     Clone (object invocation):
         forall w : W: w.new(P') = bless( merge(w, P'), ref(w) )
+        Corollary: if cache in Dom(P'), rebuild _get/_set/_cache_is_hash for P'.cache
 
 =head2 object
 

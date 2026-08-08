@@ -27,6 +27,15 @@ CARP: {
 		Class::Simple::Readonly::Cached->new(\'foo');
 	}, qr/Cache must be ref to HASH or object\z/);
 
+	# Partition: non-HASH unblessed ref (ARRAY ref) as cache.
+	# Premise:   ref([]) = 'ARRAY', blessed([]) = undef.
+	# Conclusion: the cache-validation guard croaks at the same boundary
+	#             as the scalar-ref test above, but proves the ref-type
+	#             check covers all non-HASH refs, not just SCALAR.
+	does_croak_that_matches(sub {
+		Class::Simple::Readonly::Cached->new(cache => [], object => Class::Simple->new());
+	}, qr/Cache must be ref to HASH or object\z/);
+
 	does_carp_that_matches(sub {
 		Class::Simple::Readonly::Cached->new(object => 'tulip', cache => {});
 	}, qr/must be a reference, not a scalar/);
