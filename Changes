@@ -70,6 +70,14 @@ Revision history for Class::Simple::Readonly::Cached
 	  File::Temp::tempdir(CLEANUP=>1): predictable /tmp paths are vulnerable to
 	  symlink attacks and world-readable by default; File::Temp generates a
 	  mode-0700 directory with a random suffix
+	- Add t/cgi_security.t: 18-subtest CGI penetration suite simulating hostile
+	  HTTP inputs (XSS, CRLF injection, shell metacharacters, null bytes, path
+	  traversal, cache flooding, oversized args, invalid constructor params);
+	  confirms CSRC is transparent/safe for vectors it doesn't own and documents
+	  two undocumented bugs as TODO: UNDEF_SENTINEL spoofing (inner object
+	  returning the sentinel string is silently coerced to undef on cache hit)
+	  and clone stats bleed (_hits/_misses are shallow-copied so concurrent
+	  request-scoped clones share stat hashes under mod_perl/Plack)
 
 0.12	Fri Jun 27 07:23:32 EDT 2025
 	Use Data::Reuse, but note RT#100461
