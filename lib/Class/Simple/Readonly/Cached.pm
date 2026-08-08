@@ -2,15 +2,46 @@ package Class::Simple::Readonly::Cached;
 
 use strict;
 use warnings;
+use autodie qw(:all);
 
 use Carp;
+use List::Util   qw(none);
+use Scalar::Util qw(blessed);
 use Class::Simple;
 use Data::Reuse;
 use Params::Get 0.15;
+use Readonly;
 
-my @ISA = ('Class::Simple');
+# Private-sub enforcement: _name subs croak if called from outside this
+# package.  Sub::Private respects $ENV{HARNESS_ACTIVE}, so white-box tests
+# (run under prove / make test) are automatically exempt.
+BEGIN { $Sub::Private::config{mode} = 'enforce' }
+use Sub::Private;
 
+# @ISA is intentionally EMPTY.
+#
+# Class::Simple creates permanent named methods in its own namespace the
+# first time any accessor is called (e.g. the first $obj->val() call
+# installs a real Class::Simple::val sub).  If we set @ISA = ('Class::Simple'),
+# those installed methods would be found by Perl's normal method lookup on
+# CSRC objects and would bypass our AUTOLOAD -- breaking the cache entirely.
+#
+# Keeping @ISA empty ensures every method call on a CSRC object is handled
+# by our AUTOLOAD.  The isa() and can() overrides below restore correct
+# UNIVERSAL behaviour for isa-of-Class::Simple checks.
+our @ISA = ();
+
+# Package-level registry mapping inner-object refs (stringified) to a
+# record of { object => $wrapper, file => ..., line => ... }.
+# Used to detect and warn about double-wrapping.
 our %cached;
+
+# Stored in the cache wherever a method returned undef or an empty list,
+# so we can distinguish "not yet cached" from "cached-undef".
+Readonly::Scalar my $UNDEF_SENTINEL => __PACKAGE__ . '>UNDEF<';
+
+# CHI expiry value meaning "never expire this entry".
+Readonly::Scalar my $CHI_NEVER => 'never';
 
 =head1 NAME
 
@@ -26,60 +57,138 @@ our $VERSION = '0.12';
 
 =head1 SYNOPSIS
 
-A sub-class of L<Class::Simple> which caches calls to read
-the status of an object that are otherwise expensive.
+A caching decorator for L<Class::Simple>-based (and arbitrary) objects.
 
-It is up to the caller to maintain the cache if the object comes out of sync with the cache,
-for example by changing its state.
-
-You can use this class to create a caching layer to an object of any class
-that works on objects which doesn't change its state based on input:
+It is up to the caller to maintain the cache if the object comes out of
+sync with the cache, for example by changing its state.
 
     use Class::Simple::Readonly::Cached;
 
     my $obj = Class::Simple->new();
     $obj->val('foo');
-    $obj = Class::Simple::Readonly::Cached->new(object => $obj, cache => {});
-    my $val = $obj->val();
-    print "$val\n";	# Prints "foo"
+    my $cached = Class::Simple::Readonly::Cached->new(
+        object => $obj,
+        cache  => {},
+    );
 
-    #... set $obj to be some other class which will take an argument 'a',
-    #	with a value 'b'
+    my $val  = $cached->val();   # calls the real object
+    my $val2 = $cached->val();   # served from cache
 
-    $val = $obj->val(a => 'b');
+    $val = $cached->val(a => 'b');   # args form part of the cache key
 
-Note that when the object goes out of scope or becomes undefined (i.e. DESTROYed),
-the cache is cleared.
+Note that when the object goes out of scope (DESTROY is called), the
+cache is cleared automatically.
+
+=head1 DESCRIPTION
+
+Wraps any Perl object in a transparent caching layer.  Every method call
+is intercepted via AUTOLOAD; on the first call (a I<miss>) the result is
+stored in the cache and returned.  Subsequent identical calls (same method
+name, same argument list) are I<hits> and are served directly from the
+cache without touching the inner object.
+
+Two cache backends are supported: a plain hash reference (fast, in-process,
+no expiry) and any CHI-compatible object (persistent, shared, with expiry).
 
 =head1 SUBROUTINES/METHODS
 
 =head2 new
 
-Creates a Class::Simple::Readonly::Cached object.
+=head3 Purpose
 
-It takes one mandatory parameter: cache,
-which is either an object which understands purge(), get() and set() calls,
-such as an L<CHI> object;
-or is a reference to a hash where the return values are to be stored.
+Construct a caching proxy around any Perl object.
 
-It takes one optional argument: object,
-which is an object which is taken to be the object to be cached.
-If not given, an object of the class L<Class::Simple> is instantiated
-and that is used.
+=head3 Arguments
 
-    use Gedcom;
+=over 4
 
-    my %hash;
-    my $person = Gedcom::Person->new();
-    # ...Set up some data
-    my $object = Class::Simple::Readonly::Cached(object => $person, cache => \%hash);
-    my $father1 = $object->father();	# Will call gedcom->father() to get the person's father
-    my $father2 = $object->father();	# Will retrieve the father from the cache without calling person->father()
+=item C<cache> (mandatory)
 
-Takes one optional argument: quiet,
-if you attempt to cache an object that is already cached, rather than create
-another copy you receive a warning and the previous cached copy is returned.
-The 'quiet' option, when non-zero, silences the warning.
+Either a plain hash reference (C<{}>) or a CHI-compatible object that
+implements C<get()>, C<set()>, and C<purge()>.
+
+=item C<object> (optional)
+
+The object to wrap.  Defaults to a bare L<Class::Simple> instance.
+Must be a reference; a plain scalar argument causes a C<carp> and an
+C<undef> return.  Wrapping an already-wrapped
+C<Class::Simple::Readonly::Cached> object returns the existing wrapper
+with a warning.
+
+=item C<quiet> (optional, boolean)
+
+Suppress the double-wrap warning when non-zero.
+
+=back
+
+=head3 Returns
+
+A C<Class::Simple::Readonly::Cached> object, or C<undef> on invalid
+C<object>.  Croaks on invalid C<cache>.
+
+=head3 EXAMPLE
+
+    use CHI;
+    use Class::Simple::Readonly::Cached;
+
+    # --- Hash-ref cache (in-process, no expiry) ---
+    my $obj    = My::Expensive->new();
+    my $cached = Class::Simple::Readonly::Cached->new(
+        object => $obj,
+        cache  => {},
+    );
+    my $result  = $cached->compute();   # calls the real object
+    my $result2 = $cached->compute();   # from cache -- object not called
+
+    # --- CHI cache (persistent, file-based) ---
+    my $chi = CHI->new(driver => 'File', root_dir => '/tmp/my-cache');
+    my $cached2 = Class::Simple::Readonly::Cached->new(
+        object => $obj,
+        cache  => $chi,
+    );
+
+    # --- Clone an existing wrapper ---
+    my $clone = $cached->new();   # shares the same inner object and cache
+
+=head3 API SPECIFICATION
+
+    # Input
+    {
+        cache  => { type => ['hashref', 'object'], required => 1  },
+        object => { type => 'ref',                 optional => 1  },
+        quiet  => { type => 'bool',                optional => 1  },
+    }
+
+    # Output
+    { type => 'object', class => 'Class::Simple::Readonly::Cached',
+      optional => 1 }
+
+=head3 MESSAGES
+
+    Message                                                 Meaning                              Resolution
+    -------                                                 -------                              ----------
+    Cache must be ref to HASH or object                     cache is not a hashref or blessed    Pass \%hash or a CHI object.
+                                                            object
+    Cache object must implement get(), set(), and purge()   blessed cache lacks required API      Use a CHI-compatible object.
+    $object must be a reference, not a scalar               object is a plain string             Pass a blessed reference.
+    warning: $object is already a cached object             wrapping an already-wrapped object   Reuse the returned wrapper.
+    $object is already cached at LINE of FILE               double-wrap detected                 Reuse the existing wrapper;
+                                                                                                 set quiet => 1 to silence.
+
+=head3 PSEUDOCODE
+
+    1.  If class is undef:           carp and return undef   (::new() misuse)
+    2.  If class is blessed:         merge params into a clone and return
+    3.  Validate cache:              croak if not a hashref or CHI-compatible object
+    4.  Validate object:             carp+return if scalar; return existing
+                                     wrapper if already __PACKAGE__
+    5.  Create inner object:         Class::Simple->new(non-wrapper params)
+                                     unless object was supplied
+    6.  Check double-wrap registry:  if object in %cached, carp and return
+                                     existing wrapper (unless quiet)
+    7.  Bless and register:          bless $params, $class; store in %cached
+                                     with caller file and line
+    8.  Return $self
 
 =cut
 
@@ -87,256 +196,408 @@ sub new
 {
 	my $class = shift;
 
-	# Use Class::Simple::Readonly::Cached->new(), not Class::Simple::Readonly::Cached::new()
+	# Guard against the common mistake of calling ::new() instead of ->new().
 	if(!defined($class)) {
-		carp(__PACKAGE__, ' use ->new() not ::new() to instantiate');
+		Carp::carp(__PACKAGE__ . ': use ->new() not ::new() to instantiate');
 		return;
 	}
-	if(Scalar::Util::blessed($class)) {
-		my $params = Params::Get::get_params(undef, @_) || {};
-		# clone the given object
+
+	# Object invocation: clone the existing wrapper, merging any new params.
+	if(blessed($class)) {
+		my $params = Params::Get::get_params(undef, @_) // {};
 		return bless { %{$class}, %{$params} }, ref($class);
 	}
 
 	my $params = Params::Get::get_params('cache', @_);
 
-	# Ensure cache implements required methods
-	if(Scalar::Util::blessed($params->{cache})) {
-		if((ref($params->{cache}) ne 'HASH') && !($params->{cache}->can('get') && $params->{cache}->can('set') && $params->{cache}->can('purge'))) {
-			Carp::croak("Cache object must implement 'get', 'set', and 'purge' methods");
+	# Validate the cache argument before doing anything else.
+	if(blessed($params->{cache})) {
+		unless($params->{cache}->can('get')
+			&& $params->{cache}->can('set')
+			&& $params->{cache}->can('purge'))
+		{
+			Carp::croak("$class: Cache object must implement get(), set(), and purge()");
 		}
-	} elsif(ref($params->{'cache'}) ne 'HASH') {
+	} elsif(ref($params->{cache}) ne 'HASH') {
 		Carp::croak("$class: Cache must be ref to HASH or object");
 	}
 
-	if(defined($params->{'object'})) {
-		if(ref($params->{'object'})) {
-			if(ref($params->{'object'}) eq __PACKAGE__) {
-				Carp::carp(__PACKAGE__, ' warning: $object is a cached object');
-				# Note that this isn't a technique for clearing the cache
-				return $params->{'object'};
-			}
-		} else {
-			Carp::carp(__PACKAGE__, ' $object is a scalar');
+	if(defined($params->{object})) {
+		if(!ref($params->{object})) {
+			Carp::carp(__PACKAGE__ . ': $object must be a reference, not a scalar');
 			return;
 		}
-	} else {
-		# FIXME: If there are arguments, put the values in the cache
-
-		$params->{'object'} = Class::Simple->new(%{$params});
-	}
-
-	# Warn if we're caching an object that's already cached, then
-	# return the previously cached object.  Note that it could be in
-	# a separate cache
-	my $rc;
-	if($rc = $cached{$params->{'object'}}) {
-		unless($params->{'quiet'}) {
-			Carp::carp(__PACKAGE__, ' $object is already cached at ', $rc->{'line'}, ' of ', $rc->{'file'});
+		if(ref($params->{object}) eq __PACKAGE__) {
+			# Silently returning the existing wrapper is safer than building
+			# a second layer that would double-count misses/hits.
+			Carp::carp(__PACKAGE__ . ': warning: $object is already a cached object');
+			return $params->{object};
 		}
-		return $rc->{'object'};
+	} else {
+		# No inner object supplied: create a bare Class::Simple instance.
+		# Forward only non-wrapper keys so that 'cache' and 'quiet' do not
+		# bleed into the inner object's attribute hash.
+		my %inner = map { $_ => $params->{$_} }
+		            grep { $_ !~ /\A(?:cache|quiet)\z/ }
+		            keys %{$params};
+		$params->{object} = Class::Simple->new(%inner);
 	}
-	$rc = bless $params, $class;
-	$cached{$params->{'object'}}->{'object'} = $rc;
-	my @call_details = caller(0);
-	$cached{$params->{'object'}}->{'file'} = $call_details[1];
-	$cached{$params->{'object'}}->{'line'} = $call_details[2];
 
-	# Return the blessed object
-	return $rc;
+	# Warn if this inner object is already wrapped in a cache -- returning the
+	# existing wrapper prevents hidden double-caching with stale hit counts.
+	if(my $existing = $cached{$params->{object}}) {
+		unless($params->{quiet}) {
+			Carp::carp(__PACKAGE__ . ' $object is already cached at '
+				. $existing->{line} . ' of ' . $existing->{file});
+		}
+		return $existing->{object};
+	}
+
+	my $self      = bless $params, $class;
+	my @caller    = caller(0);
+	$cached{$params->{object}} = {
+		object => $self,
+		file   => $caller[1],
+		line   => $caller[2],
+	};
+
+	return $self;
 }
 
 =head2 object
 
-Return the encapsulated object
+=head3 Purpose
+
+Return the inner (wrapped) object.
+
+=head3 Returns
+
+The blessed reference that was passed as C<object> to C<new()>.
+
+=head3 EXAMPLE
+
+    # Bypass the cache to mutate state directly.
+    $cached->object()->reset();
+
+=head3 API SPECIFICATION
+
+    # Input  { self => { type => 'object' } }
+    # Output { type => 'ref' }
+
+=head3 MESSAGES
+
+    (none)
 
 =cut
 
 sub object
 {
-	my $self = shift;
-
-	return $self->{'object'};
+	return $_[0]->{object};
 }
-
-# sub _caller_class
-# {
-	# my $self = shift;
-#
-	# if(ref($self->{'object'}) eq 'Class::Simple') {
-		# # return $self->SUPER::_caller_class(@_);
-		# return $self->Class::Simple::_caller_class(@_);
-	# }
-# }
 
 =head2 state
 
-Returns the state of the object
+=head3 Purpose
 
-    print Data::Dumper->new([$obj->state()])->Dump();
+Return a snapshot of cache hit and miss counts per cache key.
+Primarily useful for performance profiling and white-box tests.
+
+=head3 Returns
+
+A hash reference:
+
+=over 4
+
+=item C<hits>
+
+Hash reference mapping each cache key to the number of times the
+result was served from cache.  C<undef> until the first hit.
+
+=item C<misses>
+
+Hash reference mapping each cache key to the number of times the
+inner object was actually invoked.  C<undef> until the first miss.
+
+=back
+
+=head3 EXAMPLE
+
+    my $s = $cached->state();
+    my $hits   = do { my $n=0; $n += $_ for values %{$s->{hits}   // {}}; $n };
+    my $misses = do { my $n=0; $n += $_ for values %{$s->{misses} // {}}; $n };
+    printf "Hit rate: %.0f%%\n", 100 * $hits / ($hits + $misses) if $hits + $misses;
+
+=head3 API SPECIFICATION
+
+    # Input  { self => { type => 'object' } }
+    # Output { type => 'hashref',
+    #          keys => { hits   => 'hashref|undef',
+    #                    misses => 'hashref|undef' } }
+
+=head3 MESSAGES
+
+    (none)
 
 =cut
 
 sub state
 {
 	my $self = shift;
-
 	return { hits => $self->{_hits}, misses => $self->{_misses} };
 }
 
 =head2 can
 
-Returns if the embedded object can handle a message
+=head3 Purpose
+
+Report whether the inner object (or this class) can respond to a
+given method.  Overrides C<UNIVERSAL::can> to account for the
+decorator pattern.
+
+=head3 Returns
+
+A code reference if the method exists, C<undef> otherwise.
+
+=head3 EXAMPLE
+
+    my $code = $cached->can('compute');
+    $code->($cached) if $code;
+
+=head3 API SPECIFICATION
+
+    # Input  { self   => { type => 'object|string' },
+    #          method => { type => 'string' } }
+    # Output { type => 'coderef|undef' }
+
+=head3 MESSAGES
+
+    (none)
 
 =cut
 
 sub can
 {
 	my ($self, $method) = @_;
-
-	return ($method eq 'new') || $self->{'object'}->can($method) || $self->SUPER::can($method);
+	return (
+		$method eq 'new'                       ? \&new
+		: !ref($self) || !ref($self->{object}) ? $self->SUPER::can($method)
+		:                                         ($self->{object}->can($method) // $self->SUPER::can($method))
+	);
 }
 
 =head2 isa
 
-Returns if the embedded object is the given type of object
+=head3 Purpose
+
+Test class membership, delegating to the inner object's class
+hierarchy when needed.  Overrides C<UNIVERSAL::isa> to support the
+transparent decorator pattern.
+
+=head3 Returns
+
+True if the wrapper or its inner object is-a C<$class>.
+
+=head3 EXAMPLE
+
+    $cached->isa('My::Domain::Object');   # true if inner object is
+
+=head3 API SPECIFICATION
+
+    # Input  { self  => { type => 'object|string' },
+    #          class => { type => 'string' } }
+    # Output { type => 'bool' }
+
+=head3 MESSAGES
+
+    (none)
 
 =cut
 
 sub isa
 {
 	my ($self, $class) = @_;
-
-	if($class eq ref($self) || ($class eq __PACKAGE__) || $self->SUPER::isa($class)) {
-		return 1;
-	}
-	return $self->{'object'}->isa($class);
+	return (
+		$class eq ref($self)  || $class eq __PACKAGE__
+		|| $class eq 'Class::Simple' || $self->SUPER::isa($class)
+			? 1
+			: (ref($self) && ref($self->{object}) && $self->{object}->isa($class))
+	);
 }
 
+# _cache_get -- retrieve a value from the backing cache.
+# Purpose:     Abstract over the two cache backends (HASH ref vs CHI object).
+# Entry:       $cache is the cache ref/object; $key is the string cache key.
+# Exit:        Returns the stored value or undef if not present.
+# Side-effects: none.
+sub _cache_get :Private
+{
+	my ($cache, $key) = @_;
+	return ref($cache) eq 'HASH' ? $cache->{$key} : $cache->get($key);
+}
 
-# Returns a cached object, if you want it to be uncached, you'll need to clone it
+# _cache_set -- store a value in the backing cache.
+# Purpose:     Abstract over HASH vs CHI backends; CHI entries never expire.
+# Entry:       $cache, $key, $value.
+# Exit:        Returns $value (the stored value).
+# Side-effects: Mutates the cache.
+sub _cache_set :Private
+{
+	my ($cache, $key, $value) = @_;
+	ref($cache) eq 'HASH'
+		? ($cache->{$key} = $value)
+		: $cache->set($key, $value, $CHI_NEVER);
+	return $value;
+}
+
+# _can_fixate -- decide whether Data::Reuse::fixate is safe on a list.
+# Purpose:     fixate cannot handle GLOBs or blessed objects (RT#100461,
+#              RT#163955).  Only plain ARRAY, HASH, and SCALAR refs are safe.
+# Entry:       @_ is the list of values returned by the wrapped method.
+# Exit:        Returns 1 (safe) or 0 (unsafe).
+# Side-effects: none.
+sub _can_fixate :Private
+{
+	return none { ref($_) && ref($_) !~ /\A(?:ARRAY|HASH|SCALAR)\z/ } @_;
+}
+
+=head2 AUTOLOAD
+
+Not called directly.  Intercepts all method calls not defined
+explicitly in this package, proxies them to the inner object, and
+caches the results.
+
+Handles C<DESTROY> specially: removes the wrapper from the
+double-wrap registry and clears cache entries whose keys begin with
+the class name, before allowing normal Perl destruction to proceed.
+
+=cut
+
 sub AUTOLOAD
 {
 	our $AUTOLOAD;
-	my ($param) = $AUTOLOAD =~ /::(\w+)$/;
+	my ($method) = $AUTOLOAD =~ /::(\w+)$/;
 
-	my $self = shift;
-	my $cache = $self->{'cache'};
+	my $self  = shift;
+	my $cache = $self->{cache};
 
-	if($param eq 'DESTROY') {
-		if(defined($^V) && ($^V ge 'v5.14.0')) {
-			return if ${^GLOBAL_PHASE} eq 'DESTRUCT';	# >= 5.14.0 only
-		}
+	# DESTROY arrives here because we handle it dynamically rather than
+	# defining a named sub (which would suppress Class::Simple's AUTOLOAD).
+	if($method eq 'DESTROY') {
+		# During global destruction the symbol table may already be torn
+		# down; accessing the cache at that point is unsafe.
+		return if defined($^V) && ($^V ge 'v5.14.0') && ${^GLOBAL_PHASE} eq 'DESTRUCT';
+
+		# Remove from the double-wrap registry to prevent memory leaks in
+		# long-running processes that create and destroy many wrappers.
+		delete $cached{$self->{object}} if ref($self->{object});
+
 		if($cache) {
 			if(ref($cache) eq 'HASH') {
-				my $class = ref($self);
-				# while(my($key, $value) = each %{$cache}) {
-					# if($key =~ /^$class/) {
-						# delete $cache->{$key};
-					# }
-				# }
-				delete $cache->{$_} for grep { /^$class/ } keys %{$cache};
-				return;
+				# Only delete keys that belong to this instance's class,
+				# leaving entries from other classes untouched.
+				my $prefix = ref($self);
+				delete $cache->{$_} for grep { /^\Q$prefix\E/ } keys %{$cache};
+			} else {
+				$cache->purge();
 			}
-			$cache->purge();
 		}
 		return;
 	}
 
-	# my $method = $self->{'object'} . "::$param";
-	my $method = $param;
+	# Build a cache key from class, method name, and all defined arguments.
+	# Undefined arguments are excluded so that ->foo(undef) and ->foo() share
+	# a key; this matches the original behaviour.
+	my $key = ref($self) . "::${method}::" . join('::', grep { defined } @_);
 
-	# if($param =~ /^[gs]et_/) {
-		# # $param = "SUPER::$param";
-		# return $object->$method(\@_);
-	# }
-
-	my $key = ref($self) . "::${param}::" . join('::', grep defined, @_);
-
-	my $rc;
-	if(ref($cache) eq 'HASH') {
-		$rc = $cache->{$key};
-	} else {
-		$rc = $cache->get($key);
-	}
-	if(defined($rc)) {
-		# Retrieving a value
-		die $key if($rc eq 'never');
-		if(ref($rc) eq 'ARRAY') {
+	my $cached_val = _cache_get($cache, $key);
+	if(defined($cached_val)) {
+		if(ref($cached_val) eq 'ARRAY') {
+			# The method previously returned a list; serve it in either context.
 			$self->{_hits}{$key}++;
-			my @foo = @{$rc};
-			if(wantarray) {
-				if(defined($foo[0])) {
-					die $key if($foo[0] eq __PACKAGE__ . '>UNDEF<');
-					die $key if($foo[0] eq 'never');
-				}
-				# return @{$rc};
-				return @foo;
-			}
-			return pop @foo;
+			return wantarray ? @{$cached_val} : $cached_val->[-1];
 		}
-		if($rc eq __PACKAGE__ . '>UNDEF<') {
+		if($cached_val eq $UNDEF_SENTINEL) {
+			# The method previously returned undef or an empty list.
 			$self->{_hits}{$key}++;
 			return;
 		}
 		if(!wantarray) {
+			# Scalar hit in scalar context.
 			$self->{_hits}{$key}++;
-			return $rc;
+			return $cached_val;
 		}
-		# Want array from cached array after previously requesting it as a scalar
+		# A scalar is cached but the caller now wants a list.  Fall through
+		# to re-invoke the method in list context and cache the array result.
+		# This is not counted as a hit because we could not serve it from cache.
 	}
+
 	$self->{_misses}{$key}++;
-	my $object = $self->{'object'};
+	my $object = $self->{object};
+
 	if(wantarray) {
-		my @rc = $object->$method(@_);
-		if(scalar(@rc) == 0) {
-			if(ref($cache) eq 'HASH') {
-				$cache->{$key} = __PACKAGE__ . '>UNDEF<';
-			} else {
-				$cache->set($key, __PACKAGE__ . '>UNDEF<', 'never');
-			}
+		my @result = $object->$method(@_);
+		if(!@result) {
+			_cache_set($cache, $key, $UNDEF_SENTINEL);
 			return;
 		}
-		my $can_fixate = 1;	# Work around for RT#163955
-		foreach (@rc) {
-			if(ref($_)) {
-				if(ref($_) eq 'GLOB') {
-					$can_fixate = 0;
-					last;
-				}
-				if((ref($_) ne 'ARRAY') && (ref($_) ne 'HASH') && (ref($_) ne 'SCALAR')) {
-					$can_fixate = 0;
-					last;
-				}
-			}
-		}
-		Data::Reuse::fixate(@rc) if($can_fixate);
-		if(ref($cache) eq 'HASH') {
-			$cache->{$key} = \@rc;
-		} else {
-			$cache->set($key, \@rc, 'never');
-		}
-		return @rc;
+		# Share identical string values between cache entries to reduce memory
+		# usage.  Skip if any element is a type that fixate cannot handle safely.
+		Data::Reuse::fixate(@result) if _can_fixate(@result);
+		_cache_set($cache, $key, \@result);
+		return @result;
 	}
-	$rc = $object->$method(@_);
-	if(!defined($rc)) {
-		if(ref($cache) eq 'HASH') {
-			$cache->{$key} = __PACKAGE__ . '>UNDEF<';
-		} else {
-			$cache->set($key, __PACKAGE__ . '>UNDEF<', 'never');
-		}
+
+	my $result = $object->$method(@_);
+	if(!defined($result)) {
+		_cache_set($cache, $key, $UNDEF_SENTINEL);
 		return;
 	}
-	# This would be nice, but it does break gedcom.  TODO: find out why
-	# if(ref($rc) && (ref($rc) =~ /::/) && (ref($rc) ne __PACKAGE__)) {
-	# if(Scalar::Util::blessed($rc) && (ref($rc) ne __PACKAGE__)) {
-		# $rc = Class::Simple::Readonly::Cached->new(object => $rc, cache => $cache);
-	# }
-	if(ref($cache) eq 'HASH') {
-		return $cache->{$key} = $rc;
-	}
-	return $cache->set($key, $rc, 'never');
+	return _cache_set($cache, $key, $result);
 }
+
+=head1 LIMITATIONS
+
+=over 4
+
+=item B<Not safe for mutable objects>
+
+The cache is never invalidated automatically.  If the inner object's
+state changes after caching, the wrapper will return stale data.  The
+caller must either reset the cache manually or avoid using this module
+with objects that mutate.
+
+=item B<Argument serialisation is naive>
+
+Cache keys are built by joining defined arguments with C<::>.  Two
+different argument lists can therefore produce the same key if an
+argument itself contains C<::> (e.g. C<foo('a::b', 'c')> vs
+C<foo('a', 'b::c')>).  Callers that pass arguments containing C<::>
+should use a CHI backend with a custom key serialiser.
+
+=item B<Undefined arguments are collapsed>
+
+Undefined values in the argument list are silently dropped from the
+cache key, so C<foo(undef)> and C<foo()> share a cache entry.
+
+=item B<Scalar-then-list context mismatch is a miss>
+
+If a method is first called in scalar context and then in list
+context with identical arguments, the second call is a cache miss
+and re-invokes the inner object.  Both results are then independently
+cached.
+
+=item B<C<can('new')> returns a code reference, not a boolean>
+
+For strict correctness C<can> returns C<\&new> for the C<'new'>
+method rather than the boolean C<1>.  The code reference is callable
+but callers who compare it with C<==> to C<1> will see a mismatch.
+
+=item B<Does not work with L<Memoize>>
+
+C<Memoize> intercepts at the symbol-table level and conflicts with
+the C<AUTOLOAD> dispatch used here.
+
+=back
 
 =head1 AUTHOR
 
@@ -344,17 +605,14 @@ Nigel Horne, C<< <njh at nigelhorne.com> >>
 
 =head1 BUGS
 
-Doesn't work with L<Memoize>.
-
-Please report any bugs or feature requests to L<https://github.com/nigelhorne/Class-Simple-Readonly-Cached/issues>.
-I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
+Please report any bugs or feature requests to
+L<https://github.com/nigelhorne/Class-Simple-Readonly-Cached/issues>.
 
 =head1 SEE ALSO
 
 =over 4
 
-=item * L<constant::defer>
+=item * L<Test Dashboard|https://nigelhorne.github.io/Class-Simple-Readonly-Cached/coverage/>
 
 =item * L<Class::Simple>
 
@@ -362,7 +620,10 @@ automatically be notified of progress on your bug as I make changes.
 
 =item * L<Data::Reuse>
 
-Values are shared between C<Class::Simple::Readonly::Cached> objects, since they are read-only.
+Values are shared between C<Class::Simple::Readonly::Cached> objects,
+since they are read-only.
+
+=item * L<constant::defer>
 
 =back
 
@@ -374,8 +635,6 @@ You can find documentation for this module with the perldoc command.
 
     perldoc Class::Simple::Readonly::Cached
 
-You can also look for information at:
-
 =over 4
 
 =item * MetaCPAN
@@ -386,35 +645,93 @@ L<https://metacpan.org/release/Class-Simple-Readonly-Cached>
 
 L<https://github.com/nigelhorne/Class-Simple-Readonly-Cached>
 
-=item * CPANTS
-
-L<http://cpants.cpanauthors.org/dist/Class-Simple-Readonly-Cached>
-
-=item * CPAN Testers' Matrix
+=item * CPAN Testers
 
 L<http://matrix.cpantesters.org/?dist=Class-Simple-Readonly-Cached>
 
-=item * CPAN Testers Dependencies
-
-L<http://deps.cpantesters.org/?module=Class::Simple::Readonly::Cached>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/Class-Simple-Readonly-Cached/>
-
 =back
+
+=head1 FORMAL SPECIFICATION
+
+=head2 new
+
+    new : (C x P) -> (W | undef)
+
+    C = class name string
+    P = { cache : (HashRef | CacheObj), object? : Ref, quiet? : Bool, ... }
+    W = blessed P in C
+
+    valid_cache(c) :=
+        ref(c) = 'HASH'
+        OR ( blessed(c) AND c.can('get') AND c.can('set') AND c.can('purge') )
+
+    Precondition:
+        valid_cache(P.cache)
+
+    Double-wrap invariant:
+        forall o in Dom(cached): new(C, {object: o, ...}) = cached[o].object
+
+    Clone (object invocation):
+        forall w : W: w.new(P') = bless( merge(w, P'), ref(w) )
+
+=head2 object
+
+    object : W -> Ref
+
+    forall w : W: object(w) = w.object
+
+=head2 state
+
+    state : W -> HashRef
+
+    forall w : W: state(w) = { hits => w._hits, misses => w._misses }
+
+=head2 can
+
+    can : (W|Str x Str) -> (CodeRef | undef)
+
+    forall w : W, m : Str:
+      can(w, 'new') = \&new
+      can(w, m)     = w.object.can(m)  OR SUPER::can(w, m)
+
+=head2 isa
+
+    isa : (W x Str) -> Bool
+
+    forall w : W, c : Str:
+      isa(w, c) = 1  if c in { ref(w), 'Class::Simple::Readonly::Cached' }
+               | 1  if SUPER::isa(w, c)
+               | w.object.isa(c)  if ref(w)
+               | 0  otherwise
+
+=head2 autoload
+
+    autoload : (W x M x A*) -> R
+
+    M  = method name string
+    A* = argument tuple (possibly empty)
+    R  = scalar | list | undef
+
+    Cache key:
+        k(w, m, a) := ref(w) ++ '::' ++ m ++ '::' ++ defined_args(a)
+
+    Caching law:
+        get(cache(w), k(w,m,a)) = v, v != undef
+            => autoload(w, m, a) = v          (cache hit)
+        get(cache(w), k(w,m,a)) = undef
+            => v = w.object.m(a)
+               set(cache(w), k(w,m,a), v)
+               autoload(w, m, a) = v          (cache miss)
 
 =head1 LICENSE AND COPYRIGHT
 
-Author Nigel Horne: C<njh@bandsman.co.uk>
-Copyright (C) 2019-2025 Nigel Horne
+Author Nigel Horne: C<njh@nigelhorne.com>
+Copyright (C) 2019-2026 Nigel Horne
 
-Usage is subject to licence terms.
-The licence terms of this software are as follows:
-Personal single user, single computer use: GPL2
-All other users (including Commercial, Charity, Educational, Government)
-must apply in writing for a licence for use from Nigel Horne at the
-above e-mail.
+Usage is subject to the GPL2 licence terms.
+If you use it,
+please let me know.
+
 =cut
 
 1;

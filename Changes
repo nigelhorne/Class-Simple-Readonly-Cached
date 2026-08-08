@@ -4,8 +4,33 @@ Revision history for Class::Simple::Readonly::Cached
 	[ Bug Fixes ]
 	- Bump minimum Params::Get
 	  Fixes https://github.com/nigelhorne/Class-Simple-Readonly-Cached/issues/12
+	- @ISA is now intentionally empty; was ('Class::Simple'), which caused
+	  Class::Simple's AUTOLOAD to install permanent method globs that bypassed
+	  the caching AUTOLOAD, silently breaking caching for any accessor that had
+	  previously been called on a bare Class::Simple instance
+	- Use Carp::croak()/Carp::carp() fully-qualified (not imported aliases) so
+	  that Test::Carp's runtime glob overrides intercept them correctly
+	- Fix DESTROY to delete $cached{$self->{object}} on wrapper teardown,
+	  preventing a reference leak in long-running processes; also escape the
+	  class name with \Q\E in the hash-key grep pattern
+	- Fix can() and isa() to guard against freed inner object during global
+	  destruction ($self->{object} may no longer be a ref)
+	- Resolve FIXME in new(): strip 'cache' and 'quiet' from %inner before
+	  passing remaining params to Class::Simple->new(), preventing those
+	  wrapper-only keys from leaking into the inner object's attribute hash
 	[ Enhancements ]
 	- Added test dashboard
+	- Extract _cache_get, _cache_set, and _can_fixate as Sub::Private private
+	  helpers; removes all bare die $key calls from AUTOLOAD
+	- Add Readonly constants $UNDEF_SENTINEL and $CHI_NEVER to replace magic
+	  strings scattered through the code
+	- Add t/locales.t: geographic tests via Locale::Country::Multilingual
+	  (concurrent instances, case-sensitive key storage, French lookups) and
+	  POSIX locale tests verifying croak messages are locale-independent
+	- Full POD for all public methods: API SPECIFICATION, MESSAGES, FORMAL
+	  SPECIFICATION, PSEUDOCODE (new), and EXAMPLE sections; add LIMITATIONS
+	- Add runtime dependencies: List::Util >= 1.33, Readonly, Scalar::Util,
+	  Sub::Private
 
 0.12	Fri Jun 27 07:23:32 EDT 2025
 	Use Data::Reuse, but note RT#100461

@@ -18,7 +18,7 @@ WriteMakefile(
 	ABSTRACT_FROM	=> 'lib/Class/Simple/Readonly/Cached.pm',
 	((defined($ExtUtils::MakeMaker::VERSION) &&
 	 ($ExtUtils::MakeMaker::VERSION >= 6.3002))
-	  ? ('LICENSE'=> 'GPL')
+	  ? ('LICENSE'=> 'gpl_2')
 	  : ()),
 	PL_FILES	=> {},
 	CONFIGURE_REQUIRES => {
@@ -33,10 +33,14 @@ WriteMakefile(
 		'Test::Requires' => 0,
 		# 'Test::Kwalitee' => 0,
 	}, PREREQ_PM => {
-		'Carp' => 0,
+		'Carp'         => 0,
 		'Class::Simple' => 0,
-		'Data::Reuse' => 0,	# Fails installation tests on recent Perls, RT#100461
-		'Params::Get' => 0.15
+		'Data::Reuse'  => 0,		# Fails installation tests on recent Perls, RT#100461
+		'List::Util'   => 1.33,		# none() added in 1.33
+		'Params::Get'  => 0.15,
+		'Readonly'     => 0,
+		'Scalar::Util' => 0,
+		'Sub::Private' => 0,
 	}, clean => {
 		FILES => 'Class-Simple-Readonly-Cached-*'
 	}, dist => $dist,
