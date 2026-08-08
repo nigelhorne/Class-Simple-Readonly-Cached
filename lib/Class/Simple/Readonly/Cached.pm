@@ -204,7 +204,7 @@ sub new
 
 	# Object invocation: clone the existing wrapper, merging any new params.
 	if(blessed($class)) {
-		my $params = Params::Get::get_params(undef, @_) // {};
+		my $params = Params::Get::get_params(undef, \@_) // {};
 		return bless { %{$class}, %{$params} }, ref($class);
 	}
 
@@ -281,8 +281,8 @@ The blessed reference that was passed as C<object> to C<new()>.
 
 =head3 API SPECIFICATION
 
-    # Input  { self => { type => 'object' } }
-    # Output { type => 'ref' }
+    # Input  none
+    # Output { type => 'object' }
 
 =head3 MESSAGES
 
@@ -329,7 +329,7 @@ inner object was actually invoked.  C<undef> until the first miss.
 
 =head3 API SPECIFICATION
 
-    # Input  { self => { type => 'object' } }
+    # Input  None
     # Output { type => 'hashref',
     #          keys => { hits   => 'hashref|undef',
     #                    misses => 'hashref|undef' } }
@@ -457,7 +457,10 @@ sub _cache_set :Private
 # Side-effects: none.
 sub _can_fixate :Private
 {
-	return none { ref($_) && ref($_) !~ /\A(?:ARRAY|HASH|SCALAR)\z/ } @_;
+	return none {
+		my $r = ref($_);
+		$r && $r !~ /\A (?:ARRAY|HASH|SCALAR) \z/x   # GLOBs and blessed refs are unsafe for fixate
+	} @_;
 }
 
 =head2 AUTOLOAD
@@ -475,7 +478,7 @@ the class name, before allowing normal Perl destruction to proceed.
 sub AUTOLOAD
 {
 	our $AUTOLOAD;
-	my ($method) = $AUTOLOAD =~ /::(\w+)$/;
+	my ($method) = $AUTOLOAD =~ /::(\w+)\z/;
 
 	my $self  = shift;
 	my $cache = $self->{cache};
@@ -496,7 +499,7 @@ sub AUTOLOAD
 				# Only delete keys that belong to this instance's class,
 				# leaving entries from other classes untouched.
 				my $prefix = ref($self);
-				delete $cache->{$_} for grep { /^\Q$prefix\E/ } keys %{$cache};
+				delete $cache->{$_} for grep { index($_, $prefix) == 0 } keys %{$cache};
 			} else {
 				$cache->purge();
 			}

@@ -21,11 +21,11 @@ CARP: {
 
 	does_croak_that_matches(sub {
 		Class::Simple::Readonly::Cached->new({ foo => 'bar' })
-	}, qr/Cache must be ref to HASH or object$/);
+	}, qr/Cache must be ref to HASH or object\z/);
 
 	does_croak_that_matches(sub {
 		Class::Simple::Readonly::Cached->new(\'foo');
-	}, qr/Cache must be ref to HASH or object$/);
+	}, qr/Cache must be ref to HASH or object\z/);
 
 	does_carp_that_matches(sub {
 		Class::Simple::Readonly::Cached->new(object => 'tulip', cache => {});
