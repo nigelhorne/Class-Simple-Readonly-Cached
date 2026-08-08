@@ -38,20 +38,20 @@ https://pjcj.net
 <tr><td class="h"><a id="L384">384</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">!(ref $self &amp;&amp; ref $$self{&#39;object&#39;}) ? :</td></tr>
 <tr><td class="h"></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">$method eq &#39;new&#39; ? :</td></tr>
 <tr><td class="h"><a id="L423">423</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">$class eq ref $self || $class eq __PACKAGE__ || $class eq &#39;Class::Simple&#39; || $self-&gt;SUPER::isa($class) ? :</td></tr>
-<tr><td class="h"><a id="L485">485</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($method eq &quot;DESTROY&quot;)</td></tr>
-<tr><td class="h"><a id="L488">488</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if defined $^V and $^V ge &quot;v5.14.0&quot; and ${^GLOBAL_PHASE} eq &quot;DESTRUCT&quot;</td></tr>
-<tr><td class="h"><a id="L492">492</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ref $$self{&quot;object&quot;}</td></tr>
-<tr><td class="h"><a id="L494">494</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($cache)</td></tr>
-<tr><td class="h"><a id="L495">495</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (ref $cache eq &#39;HASH&#39;) { }</td></tr>
-<tr><td class="h"><a id="L513">513</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (defined $cached_val)</td></tr>
-<tr><td class="h"><a id="L514">514</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (ref $cached_val eq &quot;ARRAY&quot;)</td></tr>
-<tr><td class="h"><a id="L517">517</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">wantarray ? :</td></tr>
-<tr><td class="h"><a id="L519">519</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($cached_val eq $UNDEF_SENTINEL)</td></tr>
-<tr><td class="h"><a id="L524">524</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless (wantarray)</td></tr>
-<tr><td class="h"><a id="L537">537</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (wantarray)</td></tr>
-<tr><td class="h"><a id="L539">539</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless (@result)</td></tr>
-<tr><td class="h"><a id="L545">545</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if _can_fixate(@result)</td></tr>
-<tr><td class="h"><a id="L551">551</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless (defined $result)</td></tr>
+<tr><td class="h"><a id="L488">488</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($method eq &quot;DESTROY&quot;)</td></tr>
+<tr><td class="h"><a id="L491">491</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">if defined $^V and $^V ge &quot;v5.14.0&quot; and ${^GLOBAL_PHASE} eq &quot;DESTRUCT&quot;</td></tr>
+<tr><td class="h"><a id="L495">495</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ref $$self{&quot;object&quot;}</td></tr>
+<tr><td class="h"><a id="L497">497</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if ($cache)</td></tr>
+<tr><td class="h"><a id="L498">498</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if (ref $cache eq &#39;HASH&#39;) { }</td></tr>
+<tr><td class="h"><a id="L516">516</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (defined $cached_val)</td></tr>
+<tr><td class="h"><a id="L517">517</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (ref $cached_val eq &quot;ARRAY&quot;)</td></tr>
+<tr><td class="h"><a id="L520">520</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">wantarray ? :</td></tr>
+<tr><td class="h"><a id="L522">522</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if ($cached_val eq $UNDEF_SENTINEL)</td></tr>
+<tr><td class="h"><a id="L527">527</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless (wantarray)</td></tr>
+<tr><td class="h"><a id="L540">540</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">if (wantarray)</td></tr>
+<tr><td class="h"><a id="L542">542</a></td><td class="c3">100</td><td class="c3">T</td><td class="c3">F</td><td class="s">unless (@result)</td></tr>
+<tr><td class="h"><a id="L548">548</a></td><td class="c0">50</td><td class="c3">T</td><td class="c0">F</td><td class="s">if _can_fixate(@result)</td></tr>
+<tr><td class="h"><a id="L554">554</a></td><td class="c0">50</td><td class="c0">T</td><td class="c3">F</td><td class="s">unless (defined $result)</td></tr>
 </table>
 </body>
 </html>
