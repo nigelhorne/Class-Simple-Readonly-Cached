@@ -24,6 +24,7 @@ t/links.t
 t/locales.t
 t/minimum.t
 t/modules-used.t
+t/mutant_killers.t
 t/no404s.t
 t/noopentickets.t
 t/noplan.t

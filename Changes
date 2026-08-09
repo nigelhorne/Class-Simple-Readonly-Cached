@@ -100,6 +100,13 @@ Revision history for Class::Simple::Readonly::Cached
 	  of scalar entry; post-DESTROY re-usability; no-arg clone // {} fallback;
 	  non-cache clone param skips _build_cache_accessors; empty-list SENTINEL
 	  storage; can()/isa() multi-level hierarchy delegation
+	- Add t/mutant_killers.t: 6-subtest mutation-test suite killing all 4 MEDIUM
+	  and 3 LOW survivors from xt/mutant_20260809_032457.t; covers COND_INV_214_3
+	  (clone cache-override writes to new cache, not old), BOOL_NEGATE_243_4 /
+	  RETURN_UNDEF_243_4 (double-wrap returns original wrapper, not !ref or undef),
+	  BOOL_NEGATE_397_2 / RETURN_UNDEF_397_2 (can("new") returns exact CODE ref),
+	  BOOL_NEGATE_500_2 / RETURN_UNDEF_500_2 (_can_fixate truthy for safe lists,
+	  falsy for blessed/GLOB, and integration spy confirms fixate is called)
 	- Add t/edge_cases.t: 32-subtest destructive/boundary/security suite; covers
 	  coderef/GLOB/partial-CHI cache rejection, circular-reference inner object
 	  acceptance, empty-string arg key collision (documented limitation), "0" arg
