@@ -89,6 +89,16 @@ Revision history for Class::Simple::Readonly::Cached
 	  hierarchy, double-wrap quiet/warning, duck-typed CHI backend, CHI DESTROY
 	  purge(), no-object auto-creation, Data::Reuse::fixate spy on miss vs. hit,
 	  CHI-independence proof via @INC blocker, and real CHI::Memory lifecycle
+	- Add t/edge_cases.t: 32-subtest destructive/boundary/security suite; covers
+	  coderef/GLOB/partial-CHI cache rejection, circular-reference inner object
+	  acceptance, empty-string arg key collision (documented limitation), "0" arg
+	  key distinctness, 64 KiB arg handling, overloaded-stringify arg in cache
+	  key, string/hash-ref/blessed exception propagation through AUTOLOAD,
+	  no-cache-on-exception invariant, $_ regression guard (scalar/list/hit-path),
+	  falsy-but-defined returns (0/""/0), CHI get()/set() die propagation,
+	  can(undef)/isa(undef)/isa("UNIVERSAL") hostile args, void-context dispatch,
+	  UNDEF_SENTINEL spoofing (TODO: known bug), 1000-entry cache-flooding stress
+	  test, and blessed-object-in-list skips fixate (RT#100461)
 	[ Security ]
 	- Replace all string eval() with block eval{} in test files (t/noplan.t,
 	  t/pod-cm.t, t/pod-spelling.t, t/noopentickets.t): string eval runs the

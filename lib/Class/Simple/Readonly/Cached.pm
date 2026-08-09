@@ -551,6 +551,11 @@ sub AUTOLOAD
 	our $AUTOLOAD;
 	my ($method) = $AUTOLOAD =~ /::(\w+)\z/;
 
+	# Prevent side effects in the inner object's method from leaking $_ back
+	# to the caller.  Neither the DESTROY branch nor _can_fixate depends on a
+	# pre-existing $_ value, so localizing it here is always safe.
+	local $_;
+
 	my $self     = shift;
 	my $cache    = $self->{cache};
 	my $wantlist = wantarray;    # hoist: Perl does not cache this; avoid 3-4 redundant calls
