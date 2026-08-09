@@ -60,10 +60,10 @@ use warnings;
 sub new   { bless { _s => {}, _calls => [] }, shift }
 sub get   { $_[0]->{_s}{ $_[1] } }
 sub set   {
-    my ($self, $key, $val, $expiry) = @_;
-    push @{ $self->{_calls} }, { key => $key, val => $val, expiry => $expiry };
-    $self->{_s}{$key} = $val;
-    return;
+	my ($self, $key, $val, $expiry) = @_;
+	push @{ $self->{_calls} }, { key => $key, val => $val, expiry => $expiry };
+	$self->{_s}{$key} = $val;
+	return;
 }
 sub purge { my $self = shift; $self->{_s} = {}; $self->{_calls} = []; return }
 

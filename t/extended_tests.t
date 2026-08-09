@@ -46,7 +46,7 @@ sub new         { bless { _n => {} }, shift }
 sub ping        { my $s = shift; $s->{_n}{ping}++;        'pong'                      }
 sub echo        { my ($s,$v) = @_; $s->{_n}{echo}++;      $v                          }
 sub context_val { my $s = shift; $s->{_n}{context_val}++;
-                  wantarray ? ('list_a','list_b') : 'scalar_only'                     }
+	wantarray ? ('list_a','list_b') : 'scalar_only'                     }
 sub undef_list  { my $s = shift; $s->{_n}{undef_list}++;  (undef)                     }
 sub ncalls      { my ($s,$m) = @_; $s->{_n}{$m} // 0 }
 

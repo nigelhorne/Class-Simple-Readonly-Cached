@@ -83,62 +83,62 @@ Readonly::Scalar my $SENTINEL => 'Class::Simple::Readonly::Cached>UNDEF<';
 # The final check asserts the ledger is empty.
 # ===========================================================================
 my %ledger = (
-    # new() -- MESSAGES table (croak)
-    "new croak: $MSG_BAD_CACHE"  => 1,
-    "new croak: $MSG_BAD_API"    => 1,
+	# new() -- MESSAGES table (croak)
+	"new croak: $MSG_BAD_CACHE"  => 1,
+	"new croak: $MSG_BAD_API"    => 1,
 
-    # new() -- MESSAGES table (carp)
-    "new carp: $MSG_SCALAR_OBJ"   => 1,
-    "new carp: $MSG_ALREADY_WRAP" => 1,
-    "new carp: $MSG_ALREADY_REGD" => 1,
+	# new() -- MESSAGES table (carp)
+	"new carp: $MSG_SCALAR_OBJ"   => 1,
+	"new carp: $MSG_ALREADY_WRAP" => 1,
+	"new carp: $MSG_ALREADY_REGD" => 1,
 
-    # new() -- return states from Returns / PSEUDOCODE
-    'new: returns CSRC object'                    => 1,
-    'new: returns undef on scalar object'         => 1,
-    'new: returns existing wrapper (CSRC wrap)'   => 1,
-    'new: returns existing wrapper (registry)'    => 1,
-    'new: quiet suppresses warning'               => 1,
-    'new: clone via object invocation'            => 1,
-    'new: clone rebuilds accessors on new cache'  => 1,
+	# new() -- return states from Returns / PSEUDOCODE
+	'new: returns CSRC object'                    => 1,
+	'new: returns undef on scalar object'         => 1,
+	'new: returns existing wrapper (CSRC wrap)'   => 1,
+	'new: returns existing wrapper (registry)'    => 1,
+	'new: quiet suppresses warning'               => 1,
+	'new: clone via object invocation'            => 1,
+	'new: clone rebuilds accessors on new cache'  => 1,
 
-    # object()
-    'object: returns inner object'  => 1,
+	# object()
+	'object: returns inner object'  => 1,
 
-    # state()
-    'state: returns hashref'                    => 1,
-    'state: hits undef before first hit'        => 1,
-    'state: misses undef before first miss'     => 1,
-    'state: miss count incremented on miss'     => 1,
-    'state: hit count incremented on hit'       => 1,
+	# state()
+	'state: returns hashref'                    => 1,
+	'state: hits undef before first hit'        => 1,
+	'state: misses undef before first miss'     => 1,
+	'state: miss count incremented on miss'     => 1,
+	'state: hit count incremented on hit'       => 1,
 
-    # can()
-    "can: returns coderef for 'new'"     => 1,
-    'can: returns coderef for inner mth' => 1,
-    'can: returns undef for unknown mth' => 1,
-    'can: SUPER::can on class-level'     => 1,
+	# can()
+	"can: returns coderef for 'new'"     => 1,
+	'can: returns coderef for inner mth' => 1,
+	'can: returns undef for unknown mth' => 1,
+	'can: SUPER::can on class-level'     => 1,
 
-    # isa()
-    'isa: true for ref($self)'       => 1,
-    'isa: true for __PACKAGE__'      => 1,
-    'isa: true for Class::Simple'    => 1,
-    'isa: true for inner class'      => 1,
-    'isa: false for unrelated class' => 1,
+	# isa()
+	'isa: true for ref($self)'       => 1,
+	'isa: true for __PACKAGE__'      => 1,
+	'isa: true for Class::Simple'    => 1,
+	'isa: true for inner class'      => 1,
+	'isa: false for unrelated class' => 1,
 
-    # AUTOLOAD
-    'autoload: scalar miss'               => 1,
-    'autoload: scalar hit'                => 1,
-    'autoload: undef miss sentinel stored'=> 1,
-    'autoload: undef hit from sentinel'   => 1,
-    'autoload: list miss'                 => 1,
-    'autoload: list hit list context'     => 1,
-    'autoload: list hit scalar context'   => 1,
-    'autoload: scalar-then-list is miss'  => 1,
-    'autoload: CHI miss and hit'          => 1,
+	# AUTOLOAD
+	'autoload: scalar miss'               => 1,
+	'autoload: scalar hit'                => 1,
+	'autoload: undef miss sentinel stored'=> 1,
+	'autoload: undef hit from sentinel'   => 1,
+	'autoload: list miss'                 => 1,
+	'autoload: list hit list context'     => 1,
+	'autoload: list hit scalar context'   => 1,
+	'autoload: scalar-then-list is miss'  => 1,
+	'autoload: CHI miss and hit'          => 1,
 
-    # DESTROY
-    'destroy: hash cache cleared'    => 1,
-    'destroy: registry entry removed'=> 1,
-    'destroy: CHI purge() called'    => 1,
+	# DESTROY
+	'destroy: hash cache cleared'    => 1,
+	'destroy: registry entry removed'=> 1,
+	'destroy: CHI purge() called'    => 1,
 );
 
 # Mark a ledger entry as exercised.

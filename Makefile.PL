@@ -31,7 +31,7 @@ WriteMakefile(
 		'Test::Needs' => 0,
 		'Test::Memory::Cycle' => 0,
 		'Test::NoWarnings' => 0,
-		'Test::Requires' => 0,
+		'Test::Mockingbird' => 0,
 		'Test::Returns' => 0,
 		# 'Test::Kwalitee' => 0,
 	}, PREREQ_PM => {
@@ -54,7 +54,7 @@ WriteMakefile(
 		resources => {
 			repository => {
 				type => 'git',
-				url => 'git://github.com/nigelhorne/Class-Simple-Readonly-Cached.git',
+				url => 'https://github.com/nigelhorne/Class-Simple-Readonly-Cached.git',
 				web => 'https://github.com/nigelhorne/Class-Simple-Readonly-Cached',
 				repository => 'https://github.com/nigelhorne/Class-Simple-Readonly-Cached',
 			}, bugtracker => {

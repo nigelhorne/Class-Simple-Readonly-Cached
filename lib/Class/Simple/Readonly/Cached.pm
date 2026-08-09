@@ -2,7 +2,6 @@ package Class::Simple::Readonly::Cached;
 
 use strict;
 use warnings;
-use autodie qw(:all);
 
 use Carp;
 use List::Util   qw(none);
@@ -761,6 +760,8 @@ L<https://github.com/nigelhorne/Class-Simple-Readonly-Cached>
 L<http://matrix.cpantesters.org/?dist=Class-Simple-Readonly-Cached>
 
 =back
+
+=encoding UTF-8
 
 =head1 FORMAL SPECIFICATION
 

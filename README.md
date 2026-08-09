@@ -88,7 +88,8 @@ A `Class::Simple::Readonly::Cached` object, or `undef` on invalid
     my $result2 = $cached->compute();   # from cache -- object not called
 
     # --- CHI cache (persistent, file-based) ---
-    my $chi = CHI->new(driver => 'File', root_dir => '/tmp/my-cache');
+    use File::Temp qw(tempdir);
+    my $chi = CHI->new(driver => 'File', root_dir => tempdir(CLEANUP => 1));
     my $cached2 = Class::Simple::Readonly::Cached->new(
         object => $obj,
         cache  => $chi,
@@ -133,8 +134,10 @@ A `Class::Simple::Readonly::Cached` object, or `undef` on invalid
                                      unless object was supplied
     6.  Check double-wrap registry:  if object in %cached, carp and return
                                      existing wrapper (unless quiet)
-    7.  Bless and register:          bless $params, $class; store in %cached
-                                     with caller file and line
+    7.  Bless and register:          bless $params, $class; set _class = $class;
+                                     call _build_cache_accessors to install
+                                     _get/_set coderefs and _cache_is_hash;
+                                     store in %cached with caller file and line
     8.  Return $self
 
 ## object
@@ -154,8 +157,8 @@ The blessed reference that was passed as `object` to `new()`.
 
 ### API SPECIFICATION
 
-    # Input  { self => { type => 'object' } }
-    # Output { type => 'ref' }
+    # Input  none
+    # Output { type => 'object' }
 
 ### MESSAGES
 
@@ -191,7 +194,7 @@ A hash reference:
 
 ### API SPECIFICATION
 
-    # Input  { self => { type => 'object' } }
+    # Input  None
     # Output { type => 'hashref',
     #          keys => { hits   => 'hashref|undef',
     #                    misses => 'hashref|undef' } }
@@ -255,13 +258,40 @@ True if the wrapper or its inner object is-a `$class`.
 
 ## AUTOLOAD
 
-Not called directly.  Intercepts all method calls not defined
-explicitly in this package, proxies them to the inner object, and
-caches the results.
+Not called directly.  Intercepts every method call not explicitly
+defined in this package, looks up the result in the cache, and on a
+miss proxies the call to the inner object and stores the result.
 
-Handles `DESTROY` specially: removes the wrapper from the
-double-wrap registry and clears cache entries whose keys begin with
-the class name, before allowing normal Perl destruction to proceed.
+Cache lookup and storage use the pre-built `_get`/`_set` coderefs
+installed by `_build_cache_accessors` at construction time, so the
+backend-type decision (HASH vs CHI) is made once -- never on each
+dispatch.
+
+Three stored-value forms are mutually exclusive and exhaustive:
+
+- ARRAY ref
+
+    The wrapped method previously returned a list.  Served as `@array`
+    in list context, or `$array[-1]` in scalar context.
+
+- `$UNDEF_SENTINEL`
+
+    The wrapped method returned `undef` or an empty list.  Stored as the
+    sentinel string so a cache miss (undefined value) can be distinguished
+    from a cached `undef`.
+
+- Any other defined scalar
+
+    The wrapped method returned a plain scalar in scalar context.  Served
+    as-is in scalar context.  If the caller subsequently asks for the
+    same key in list context, the scalar cannot be adapted -- the call is
+    treated as a miss and the method is re-invoked so the array form gets
+    independently cached.
+
+Handles `DESTROY` specially: removes the wrapper from the double-wrap
+registry and clears cache entries whose keys begin with `$self-`{\_class}>
+(Invariant I3 guarantees this is always set), then returns without
+calling the inner object's DESTROY.
 
 # LIMITATIONS
 
@@ -361,11 +391,19 @@ You can find documentation for this module with the perldoc command.
     Precondition:
         valid_cache(P.cache)
 
+    Post-construction invariants (hold for all W returned by new()):
+        W._class         = C
+        W._cache_is_hash = (ref(P.cache) = 'HASH')
+        W._get           = λk. (W._cache_is_hash ? W.cache[k] : W.cache.get(k))
+        W._set           = λ(k,v). (W._cache_is_hash ? W.cache[k]:=v
+                                                      : W.cache.set(k,v,'never'))
+
     Double-wrap invariant:
         forall o in Dom(cached): new(C, {object: o, ...}) = cached[o].object
 
     Clone (object invocation):
         forall w : W: w.new(P') = bless( merge(w, P'), ref(w) )
+        Corollary: if cache in Dom(P'), rebuild _get/_set/_cache_is_hash for P'.cache
 
 ## object
 
@@ -406,7 +444,8 @@ You can find documentation for this module with the perldoc command.
     R  = scalar | list | undef
 
     Cache key:
-        k(w, m, a) := ref(w) ++ '::' ++ m ++ '::' ++ defined_args(a)
+        k(w, m, a) := w._class ++ '::' ++ m ++ '::' ++ defined_args(a)
+        (w._class = ref(w), pre-computed once in new() to avoid ref() per dispatch)
 
     Caching law:
         get(cache(w), k(w,m,a)) = v, v != undef
