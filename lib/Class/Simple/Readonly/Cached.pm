@@ -48,11 +48,11 @@ Class::Simple::Readonly::Cached - cache messages to an object
 
 =head1 VERSION
 
-Version 0.12
+Version 0.13
 
 =cut
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 =head1 SYNOPSIS
 
@@ -92,8 +92,6 @@ no expiry) and any CHI-compatible object (persistent, shared, with expiry).
 =head1 SUBROUTINES/METHODS
 
 =head2 new
-
-=head3 Purpose
 
 Construct a caching proxy around any Perl object.
 
@@ -278,8 +276,6 @@ sub new
 
 =head2 object
 
-=head3 Purpose
-
 Return the inner (wrapped) object.
 
 =head3 Returns
@@ -308,8 +304,6 @@ sub object
 }
 
 =head2 state
-
-=head3 Purpose
 
 Return a snapshot of cache hit and miss counts per cache key.
 Primarily useful for performance profiling and white-box tests.
@@ -360,8 +354,6 @@ sub state
 
 =head2 can
 
-=head3 Purpose
-
 Report whether the inner object (or this class) can respond to a
 given method.  Overrides C<UNIVERSAL::can> to account for the
 decorator pattern.
@@ -407,8 +399,6 @@ sub can
 }
 
 =head2 isa
-
-=head3 Purpose
 
 Test class membership, delegating to the inner object's class
 hierarchy when needed.  Overrides C<UNIVERSAL::isa> to support the
@@ -463,7 +453,7 @@ sub isa
 }
 
 # _build_cache_accessors -- install backend-specific _get/_set closures on $self.
-# Purpose:     The cache backend (HASH vs CHI) is fixed for a wrapper's lifetime.
+# The cache backend (HASH vs CHI) is fixed for a wrapper's lifetime.
 #              Deciding which branch to take on every AUTOLOAD call via ref($cache)
 #              plus a Sub::Private caller() check is unnecessary overhead.  Instead
 #              we close over the bare cache reference once at construction time and
@@ -489,11 +479,10 @@ sub _build_cache_accessors :Private
 }
 
 # _can_fixate -- decide whether Data::Reuse::fixate is safe on a list.
-# Purpose:     fixate cannot handle GLOBs or blessed objects (RT#100461,
+# fixate cannot handle GLOBs or blessed objects (RT#100461,
 #              RT#163955).  Only plain ARRAY, HASH, and SCALAR refs are safe.
 # Entry:       @_ is the list of values returned by the wrapped method.
 # Exit:        Returns 1 (safe) or 0 (unsafe).
-# Side-effects: none.
 sub _can_fixate :Private
 {
 	return none {

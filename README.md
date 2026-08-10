@@ -4,7 +4,7 @@ Class::Simple::Readonly::Cached - cache messages to an object
 
 # VERSION
 
-Version 0.12
+Version 0.13
 
 # SYNOPSIS
 
@@ -44,8 +44,6 @@ no expiry) and any CHI-compatible object (persistent, shared, with expiry).
 # SUBROUTINES/METHODS
 
 ## new
-
-### Purpose
 
 Construct a caching proxy around any Perl object.
 
@@ -142,8 +140,6 @@ A `Class::Simple::Readonly::Cached` object, or `undef` on invalid
 
 ## object
 
-### Purpose
-
 Return the inner (wrapped) object.
 
 ### Returns
@@ -165,8 +161,6 @@ The blessed reference that was passed as `object` to `new()`.
     (none)
 
 ## state
-
-### Purpose
 
 Return a snapshot of cache hit and miss counts per cache key.
 Primarily useful for performance profiling and white-box tests.
@@ -205,8 +199,6 @@ A hash reference:
 
 ## can
 
-### Purpose
-
 Report whether the inner object (or this class) can respond to a
 given method.  Overrides `UNIVERSAL::can` to account for the
 decorator pattern.
@@ -231,8 +223,6 @@ A code reference if the method exists, `undef` otherwise.
     (none)
 
 ## isa
-
-### Purpose
 
 Test class membership, delegating to the inner object's class
 hierarchy when needed.  Overrides `UNIVERSAL::isa` to support the

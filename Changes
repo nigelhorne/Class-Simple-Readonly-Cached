@@ -1,6 +1,6 @@
 Revision history for Class::Simple::Readonly::Cached
 
-0.13
+0.13 Sun Aug  9 07:57:25 PM EDT 2026
 	[ Bug Fixes ]
 	- Bump minimum Params::Get
 	  Fixes https://github.com/nigelhorne/Class-Simple-Readonly-Cached/issues/12
